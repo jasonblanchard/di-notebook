@@ -1,6 +1,9 @@
 package store
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 // Writer interface for write ops to the store
 type Writer interface {
@@ -14,7 +17,7 @@ type GetEntryOutput struct {
 	Text      string
 	CreatorID string
 	CreatedAt time.Time
-	UpdatedAt time.Time
+	UpdatedAt sql.NullTime
 }
 
 // Reader interface

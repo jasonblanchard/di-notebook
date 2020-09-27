@@ -35,7 +35,7 @@ func makeApp() (*App, error) {
 	return app, nil
 }
 
-func TestFlow(t *testing.T) {
+func TestCreateReadFlow(t *testing.T) {
 	app, err := makeApp()
 
 	if err != nil {
@@ -70,4 +70,5 @@ func TestFlow(t *testing.T) {
 
 	assert.Equal(t, output.ID, id)
 	assert.Equal(t, output.Text, "hello")
+	assert.Equal(t, output.CreatorID, "123")
 }
