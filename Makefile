@@ -13,10 +13,10 @@ dropdb:
 	dropdb di_notebook
 
 dbmigrate:
-	USER=di PASSWORD=di HOST=localhost PORT=5432 DATABASE=di_velocity go run cmd/db/main.go up
+	go run cmd/cli/main.go db migrate --config config/local.yaml
 
 dbmigratedown:
-	USER=di PASSWORD=di HOST=localhost PORT=5432 DATABASE=di_velocity go run cmd/db/main.go down
+	go run cmd/cli/main.go db migrate -d --config config/local.yaml
 
 migration:
 	migrate create -ext sql -dir cmd/db/migrations -seq $$SEQ

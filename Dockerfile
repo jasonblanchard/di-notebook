@@ -9,7 +9,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN go build -o build/db -v ./cmd/db
+RUN go build -o build/cli -v ./cmd/cli
 
 FROM ubuntu AS run
 ARG BUILD_DIR
@@ -21,5 +21,6 @@ WORKDIR /cmd
 ENV PATH="/app:${PATH}"
 
 COPY --from=build --chown=docker:docker ${BUILD_DIR}/build .
+COPY --chown=docker:docker migrations migrations
 
 # CMD ["./nats"]
