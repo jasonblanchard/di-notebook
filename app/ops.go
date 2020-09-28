@@ -6,10 +6,19 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Principle who is performing the op
+// Principle - entity that is performing the op
 type Principle struct {
-	Type string
+	Type string // TODO: Some kind of enum for type?
 	ID   string
+}
+
+// Entry - text entry
+type Entry struct {
+	ID        int
+	Text      string
+	CreatorID string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // StartNewEntry start writing a new entry
@@ -20,22 +29,14 @@ func (a *App) StartNewEntry(p *Principle, text string, creatorID string) (int, e
 
 // ResetEntries drop all entries. Usually used for testing
 func (a *App) ResetEntries(p *Principle) error {
-	// TODO: Check policy to make sure principal can do this
+	if !canResetEntries(p) {
+		return &UnauthorizedError{s: "Principle cannot drop entries"}
+	}
 	return a.Writer.DropEntries()
-}
-
-// Entry DTO
-type Entry struct {
-	ID        int
-	Text      string
-	CreatorID string
-	CreatedAt time.Time
-	UpdatedAt time.Time
 }
 
 // ReadEntry get an entry for reading
 func (a *App) ReadEntry(p *Principle, id int) (*Entry, error) {
-	// TODO: Check policy to make sure principal can do this
 	output, err := a.Reader.GetEntry(id)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetEntry failed")
@@ -47,6 +48,10 @@ func (a *App) ReadEntry(p *Principle, id int) (*Entry, error) {
 		CreatorID: output.CreatorID,
 		CreatedAt: output.CreatedAt,
 		UpdatedAt: output.UpdatedAt.Time,
+	}
+
+	if !canReadEntry(p, entry) {
+		return nil, &UnauthorizedError{s: "Principle cannot read entry"}
 	}
 
 	return entry, nil

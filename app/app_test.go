@@ -43,7 +43,7 @@ func TestCreateReadFlow(t *testing.T) {
 	}
 
 	tester := &Principle{
-		Type: "TESTER",
+		Type: "TEST",
 	}
 
 	err = app.ResetEntries(tester)
