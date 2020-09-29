@@ -9,14 +9,7 @@ import (
 )
 
 func makeApp() (*App, error) {
-	reader, err := postgres.NewReader(&postgres.ReaderInput{
-		User:     "di",
-		Password: "di",
-		Dbname:   "di_notebook",
-		Host:     "localhost",
-	})
-
-	writer, err := postgres.NewWriter(&postgres.WriterInput{
+	db, err := postgres.NewConnection(&postgres.NewConnectionInput{
 		User:     "di",
 		Password: "di",
 		Dbname:   "di_notebook",
@@ -27,9 +20,17 @@ func makeApp() (*App, error) {
 		return nil, err
 	}
 
+	reader := &postgres.Reader{
+		Db: db,
+	}
+
+	writer := &postgres.Writer{
+		Db: db,
+	}
+
 	app := &App{
-		Reader: reader,
-		Writer: writer,
+		StoreReader: reader,
+		StoreWriter: writer,
 	}
 
 	return app, nil
@@ -43,7 +44,7 @@ func TestCreateReadFlow(t *testing.T) {
 	}
 
 	tester := &Principle{
-		Type: "TEST",
+		Type: PrincipleTypeTest,
 	}
 
 	err = app.ResetEntries(tester)
@@ -53,7 +54,7 @@ func TestCreateReadFlow(t *testing.T) {
 	}
 
 	author := &Principle{
-		Type: "USER",
+		Type: PrincipleTypeUser,
 		ID:   "123",
 	}
 

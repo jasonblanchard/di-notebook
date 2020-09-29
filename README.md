@@ -11,3 +11,5 @@ store
   - reader.go   <- interface for read operations. Accepts various arg shapes and returns DTO types defined in app.
   - writer.go   <- interface for write operations. Accepts various arg shapes and returns DTO types defined in app.
   - postgres    <- concrete reader/writer store types for postgres. Holds logic for creating DB connections and logic for querying
+
+

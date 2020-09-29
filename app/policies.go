@@ -2,7 +2,7 @@ package app
 
 func canReadEntry(p *Principle, entry *Entry) bool {
 	switch p.Type {
-	case "USER":
+	case PrincipleTypeUser:
 		return p.ID == entry.CreatorID
 	default:
 		return false
@@ -10,5 +10,5 @@ func canReadEntry(p *Principle, entry *Entry) bool {
 }
 
 func canResetEntries(p *Principle) bool {
-	return p.Type == "TEST"
+	return p.Type == PrincipleTypeTest
 }
