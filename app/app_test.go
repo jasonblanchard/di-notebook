@@ -58,12 +58,19 @@ func TestCreateReadFlow(t *testing.T) {
 		ID:   "123",
 	}
 
-	id, err := app.StartNewEntry(author, "hello", "123")
+	id, err := app.StartNewEntry(&StartNewEntryInput{
+		Principle: author,
+		Text:      "hello",
+		CreatorID: "123",
+	})
 	if err != nil {
 		panic(err)
 	}
 
-	output, err := app.ReadEntry(author, id)
+	output, err := app.ReadEntry(&ReadEntryInput{
+		Principle: author,
+		ID:        id,
+	})
 
 	if err != nil {
 		panic(err)
