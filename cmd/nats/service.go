@@ -72,6 +72,7 @@ func (s *Service) Run() error {
 	engine.Use(natsby.WithLogger(s.Logger))
 
 	engine.Subscribe("create.entry", s.handleCreateEntry)
+	engine.Subscribe("get.entry", s.handleCreateEntry)
 
 	engine.Run(func() {
 		s.Logger.Info().Msg("Ready to receive messages")

@@ -27,3 +27,20 @@ func (s *Service) handleCreateEntry(c *natsby.Context) {
 
 	c.ByteReplyPayload = payload
 }
+
+func (s *Service) handleGetEntry(c *natsby.Context) {
+	readEntryInput, err := protobufmapper.GetEntryRequestToReadEntryInput(c.Msg.Data)
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error mapping request")
+		return
+	}
+
+	entry, err := s.ReadEntry(readEntryInput)
+
+	response, err := protobufmapper.EntryToGetEntryResponse(entry)
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error mapping response")
+	}
+
+	c.ByteReplyPayload = response
+}
