@@ -30,19 +30,12 @@ type ReadEntryInput struct {
 
 // ReadEntry get an entry for reading
 func (a *App) ReadEntry(i *ReadEntryInput) (*Entry, error) {
-	output, err := a.StoreReader.GetEntry(i.ID)
+	getEntryOutput, err := a.StoreReader.GetEntry(i.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetEntry failed")
 	}
 
-	// TODO: Refactor to mapper
-	entry := &Entry{
-		ID:        output.ID,
-		Text:      output.Text,
-		CreatorID: output.CreatorID,
-		CreatedAt: output.CreatedAt,
-		UpdatedAt: output.UpdatedAt.Time,
-	}
+	entry := StoreGetEntryOutputToEntry(getEntryOutput)
 
 	if !canReadEntry(i.Principal, entry) {
 		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot read entry"}, "Unauthorized")
@@ -65,14 +58,7 @@ func (a *App) DiscardEntry(i *DiscardEntryInput) error {
 		return errors.Wrap(err, "Error getting entry")
 	}
 
-	// TODO: Refactor to mapper
-	entry := &Entry{
-		ID:        getEntryOutput.ID,
-		Text:      getEntryOutput.Text,
-		CreatorID: getEntryOutput.CreatorID,
-		CreatedAt: getEntryOutput.CreatedAt,
-		UpdatedAt: getEntryOutput.UpdatedAt.Time,
-	}
+	entry := StoreGetEntryOutputToEntry(getEntryOutput)
 
 	if !canDiscardEntry(i.Principal, entry) {
 		return errors.Wrap(&UnauthorizedError{s: "Principal cannot read entry"}, "Unauthorized")
