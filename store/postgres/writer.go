@@ -41,6 +41,21 @@ RETURNING id
 	return id, nil
 }
 
+// DeleteEntry delete entry instance
+func (w *Writer) DeleteEntry(id int) error {
+	row := w.Db.QueryRow(`
+UPDATE entries
+SET is_deleted = TRUE
+WHERE id = $1
+`, id)
+
+	if row.Err() != nil {
+		return errors.Wrap(row.Err(), "Delete failed")
+	}
+
+	return nil
+}
+
 // DropEntries Drop all entries in the DB
 func (w *Writer) DropEntries() error {
 	rows, err := w.Db.Query("DELETE FROM entries")

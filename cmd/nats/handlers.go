@@ -44,3 +44,25 @@ func (s *Service) handleGetEntry(c *natsby.Context) {
 
 	c.ByteReplyPayload = response
 }
+
+func (s *Service) handleDeleteEntry(c *natsby.Context) {
+	deleteEntryInput, err := protobufmapper.DeleteEntryRequestToDiscardEntryInput(c.Msg.Data)
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error mapping request")
+		return
+	}
+
+	err = s.DiscardEntry(deleteEntryInput)
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error discarding entry")
+		return
+	}
+
+	response, err := protobufmapper.DiscardEntryToDeleteEntryResponse()
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error mapping response")
+		return
+	}
+
+	c.ByteReplyPayload = response
+}

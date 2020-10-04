@@ -26,7 +26,7 @@ func CreateEntryRequestToStartNewEntryInput(data []byte) (*app.StartNewEntryInpu
 	}
 
 	startNewEntryInput := &app.StartNewEntryInput{
-		Principle: &app.Principal{
+		Principal: &app.Principal{
 			Type: app.PrincipalUSER,
 			ID:   createEntryRequest.Context.Principal.Id,
 		},
@@ -64,7 +64,7 @@ func GetEntryRequestToReadEntryInput(data []byte) (*app.ReadEntryInput, error) {
 	id, err := strconv.Atoi(getEntryRequest.Payload.Id)
 
 	readEntryInput := &app.ReadEntryInput{
-		Principle: &app.Principal{
+		Principal: &app.Principal{
 			Type: app.PrincipalUSER,
 			ID:   getEntryRequest.Context.Principal.Id,
 		},
@@ -97,4 +97,35 @@ func timeToProtoTime(time time.Time) *timestamp.Timestamp {
 	return &timestamp.Timestamp{
 		Seconds: time.Unix(),
 	}
+}
+
+// DeleteEntryRequestToDiscardEntryInput mapper
+func DeleteEntryRequestToDiscardEntryInput(data []byte) (*app.DiscardEntryInput, error) {
+	deleteEntryRequest := &entry.DeleteEntryRequest{}
+	err := proto.Unmarshal(data, deleteEntryRequest)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error unmarshalling request")
+	}
+
+	id, err := strconv.Atoi(deleteEntryRequest.Payload.Id)
+
+	discardEntryInput := &app.DiscardEntryInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   deleteEntryRequest.Context.Principal.Id,
+		},
+		ID: id,
+	}
+
+	return discardEntryInput, nil
+}
+
+// DiscardEntryToDeleteEntryResponse mapper
+func DiscardEntryToDeleteEntryResponse() ([]byte, error) {
+	response := &entry.DeleteEntryResponse{}
+	data, err := proto.Marshal(response)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error marshalling response")
+	}
+	return data, nil
 }

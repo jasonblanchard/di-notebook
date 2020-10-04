@@ -106,6 +106,7 @@ func (s *Service) Run() error {
 
 	engine.Subscribe("create.entry", natsby.WithByteReply(), s.handleCreateEntry)
 	engine.Subscribe("get.entry", natsby.WithByteReply(), s.handleGetEntry)
+	engine.Subscribe("delete.entry", natsby.WithByteReply(), s.handleDeleteEntry)
 
 	engine.Run(func() {
 		s.Logger.Info().Msg("Ready to receive messages")

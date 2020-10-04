@@ -16,6 +16,7 @@ type CreateEntryInput struct {
 // Writer interface for write ops to the store
 type Writer interface {
 	CreateEntry(*CreateEntryInput) (int, error)
+	DeleteEntry(int) error
 	DropEntries() error
 }
 

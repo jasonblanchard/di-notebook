@@ -9,6 +9,6 @@ func canReadEntry(p *Principal, entry *Entry) bool {
 	}
 }
 
-func canResetEntries(p *Principal) bool {
-	return p.Type == PrincipalTEST
+func canDiscardEntry(p *Principal, entry *Entry) bool {
+	return p.ID == entry.CreatorID
 }

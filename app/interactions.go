@@ -7,7 +7,7 @@ import (
 
 // StartNewEntryInput input for StartNewEntry
 type StartNewEntryInput struct {
-	Principle *Principal
+	Principal *Principal
 	Text      string
 	CreatorID string
 }
@@ -24,7 +24,7 @@ func (a *App) StartNewEntry(i *StartNewEntryInput) (int, error) {
 
 // ReadEntryInput Input for ReadEntry
 type ReadEntryInput struct {
-	Principle *Principal
+	Principal *Principal
 	ID        int
 }
 
@@ -35,6 +35,7 @@ func (a *App) ReadEntry(i *ReadEntryInput) (*Entry, error) {
 		return nil, errors.Wrap(err, "GetEntry failed")
 	}
 
+	// TODO: Refactor to mapper
 	entry := &Entry{
 		ID:        output.ID,
 		Text:      output.Text,
@@ -43,9 +44,44 @@ func (a *App) ReadEntry(i *ReadEntryInput) (*Entry, error) {
 		UpdatedAt: output.UpdatedAt.Time,
 	}
 
-	if !canReadEntry(i.Principle, entry) {
-		return nil, &UnauthorizedError{s: "Principle cannot read entry"}
+	if !canReadEntry(i.Principal, entry) {
+		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot read entry"}, "Unauthorized")
 	}
 
 	return entry, nil
+}
+
+// DiscardEntryInput Input for ReadEntry
+type DiscardEntryInput struct {
+	Principal *Principal
+	ID        int
+}
+
+// DiscardEntry marks entry as deleted
+func (a *App) DiscardEntry(i *DiscardEntryInput) error {
+	// TODO: Check policy to make sure principal can do this
+	getEntryOutput, err := a.StoreReader.GetEntry(i.ID)
+	if err != nil {
+		return errors.Wrap(err, "Error getting entry")
+	}
+
+	// TODO: Refactor to mapper
+	entry := &Entry{
+		ID:        getEntryOutput.ID,
+		Text:      getEntryOutput.Text,
+		CreatorID: getEntryOutput.CreatorID,
+		CreatedAt: getEntryOutput.CreatedAt,
+		UpdatedAt: getEntryOutput.UpdatedAt.Time,
+	}
+
+	if !canDiscardEntry(i.Principal, entry) {
+		return errors.Wrap(&UnauthorizedError{s: "Principal cannot read entry"}, "Unauthorized")
+	}
+
+	err = a.StoreWriter.DeleteEntry(i.ID)
+	if err != nil {
+		return errors.Wrap(err, "Delete entry failed")
+	}
+
+	return nil
 }

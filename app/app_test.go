@@ -56,7 +56,7 @@ func TestCreateReadFlow(t *testing.T) {
 	}
 
 	id, err := app.StartNewEntry(&StartNewEntryInput{
-		Principle: author,
+		Principal: author,
 		Text:      "hello",
 		CreatorID: "123",
 	})
@@ -65,7 +65,7 @@ func TestCreateReadFlow(t *testing.T) {
 	}
 
 	output, err := app.ReadEntry(&ReadEntryInput{
-		Principle: author,
+		Principal: author,
 		ID:        id,
 	})
 

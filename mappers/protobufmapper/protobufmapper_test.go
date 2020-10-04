@@ -28,7 +28,7 @@ func TestCreateEntryRequestToStartNewEntryInput(t *testing.T) {
 	}
 
 	output, err := CreateEntryRequestToStartNewEntryInput(b)
-	assert.Equal(t, output.Principle.ID, "123")
+	assert.Equal(t, output.Principal.ID, "123")
 	assert.Equal(t, output.Text, "Hello, world")
 	assert.Equal(t, output.CreatorID, "123")
 }
