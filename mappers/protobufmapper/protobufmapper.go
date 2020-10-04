@@ -1,6 +1,7 @@
 package protobufmapper
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -19,6 +20,11 @@ func CreateEntryRequestToStartNewEntryInput(data []byte) (*app.StartNewEntryInpu
 		return nil, errors.Wrap(err, "Error decoding CreateEntryRequest message")
 	}
 
+	// TODO: Come up with better validation logic
+	if createEntryRequest.Context == nil {
+		return nil, errors.New("Validation error")
+	}
+
 	startNewEntryInput := &app.StartNewEntryInput{
 		Principle: &app.Principle{
 			Type: app.PrincipleTypeUser,
@@ -35,7 +41,7 @@ func CreateEntryRequestToStartNewEntryInput(data []byte) (*app.StartNewEntryInpu
 func IDToCreateEntryResponse(id int) ([]byte, error) {
 	createEntryResponse := &entry.CreateEntryResponse{
 		Payload: &entry.CreateEntryResponse_Payload{
-			Id: string(id),
+			Id: fmt.Sprintf("%d", id),
 		},
 	}
 
@@ -72,10 +78,10 @@ func GetEntryRequestToReadEntryInput(data []byte) (*app.ReadEntryInput, error) {
 func EntryToGetEntryResponse(e *app.Entry) ([]byte, error) {
 	getEntryResponse := &entry.GetEntryResponse{
 		Payload: &entry.GetEntryResponse_Payload{
-			Id:   string(e.ID),
-			Text: e.Text,
-			CreatedAt: timeToProtoTime(e.CreatedAt)
-			UpdatedAt: timeToProtoTime(e.UpdatedAt)
+			Id:        fmt.Sprintf("%d", e.ID),
+			Text:      e.Text,
+			CreatedAt: timeToProtoTime(e.CreatedAt),
+			UpdatedAt: timeToProtoTime(e.UpdatedAt),
 		},
 	}
 
@@ -87,8 +93,8 @@ func EntryToGetEntryResponse(e *app.Entry) ([]byte, error) {
 	return output, nil
 }
 
-func timeToProtoTime(time time.Time) timestamp.Timestamp {
-	return timestamp.Timestamp{
+func timeToProtoTime(time time.Time) *timestamp.Timestamp {
+	return &timestamp.Timestamp{
 		Seconds: time.Unix(),
 	}
 }

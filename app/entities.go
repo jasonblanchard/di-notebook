@@ -6,6 +6,7 @@ import "time"
 type PrincipleType int
 
 // principle types
+// TODO: Principal_USER, Principal_TEST
 const (
 	PrincipleTypeUser PrincipleType = iota
 	PrincipleTypeTest
