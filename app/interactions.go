@@ -6,7 +6,7 @@ import (
 
 // StartNewEntryInput input for StartNewEntry
 type StartNewEntryInput struct {
-	Principle *Principle
+	Principle *Principal
 	Text      string
 	CreatorID string
 }
@@ -18,7 +18,7 @@ func (a *App) StartNewEntry(i *StartNewEntryInput) (int, error) {
 }
 
 // ResetEntries drop all entries. Usually used for testing
-func (a *App) ResetEntries(p *Principle) error {
+func (a *App) ResetEntries(p *Principal) error {
 	if !canResetEntries(p) {
 		return &UnauthorizedError{s: "Principle cannot drop entries"}
 	}
@@ -27,7 +27,7 @@ func (a *App) ResetEntries(p *Principle) error {
 
 // ReadEntryInput Input for ReadEntry
 type ReadEntryInput struct {
-	Principle *Principle
+	Principle *Principal
 	ID        int
 }
 

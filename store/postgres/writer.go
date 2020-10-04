@@ -14,6 +14,7 @@ type Writer struct {
 
 // CreateEntry Creates an entry in the DB
 func (w *Writer) CreateEntry(text string, creatorID string) (int, error) {
+	// TODO: Allow passing in all values
 	now := time.Now()
 
 	row := w.Db.QueryRow(`

@@ -1,14 +1,14 @@
 package app
 
-func canReadEntry(p *Principle, entry *Entry) bool {
+func canReadEntry(p *Principal, entry *Entry) bool {
 	switch p.Type {
-	case PrincipleUSER:
+	case PrincipalUSER:
 		return p.ID == entry.CreatorID
 	default:
 		return false
 	}
 }
 
-func canResetEntries(p *Principle) bool {
-	return p.Type == PrincipleTEST
+func canResetEntries(p *Principal) bool {
+	return p.Type == PrincipalTEST
 }

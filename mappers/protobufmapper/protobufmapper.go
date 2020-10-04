@@ -26,8 +26,8 @@ func CreateEntryRequestToStartNewEntryInput(data []byte) (*app.StartNewEntryInpu
 	}
 
 	startNewEntryInput := &app.StartNewEntryInput{
-		Principle: &app.Principle{
-			Type: app.PrincipleUSER,
+		Principle: &app.Principal{
+			Type: app.PrincipalUSER,
 			ID:   createEntryRequest.Context.Principal.Id,
 		},
 		Text:      createEntryRequest.Payload.Text,
@@ -64,8 +64,8 @@ func GetEntryRequestToReadEntryInput(data []byte) (*app.ReadEntryInput, error) {
 	id, err := strconv.Atoi(getEntryRequest.Payload.Id)
 
 	readEntryInput := &app.ReadEntryInput{
-		Principle: &app.Principle{
-			Type: app.PrincipleUSER,
+		Principle: &app.Principal{
+			Type: app.PrincipalUSER,
 			ID:   getEntryRequest.Context.Principal.Id,
 		},
 		ID: id,

@@ -2,17 +2,17 @@ package app
 
 import "time"
 
-// PrincipalType type of principle
+// PrincipalType type of principal
 type PrincipalType int
 
-// principle types
+// principal types
 const (
-	PrincipleUSER PrincipalType = iota
-	PrincipleTEST
+	PrincipalUSER PrincipalType = iota
+	PrincipalTEST
 )
 
-// Principle - entity that is performing the op
-type Principle struct {
+// Principal - entity that is performing the op
+type Principal struct {
 	Type PrincipalType
 	ID   string
 }

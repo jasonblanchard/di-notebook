@@ -104,8 +104,8 @@ func (s *Service) Run() error {
 
 	engine.Use(natsby.WithLogger(s.Logger))
 
-	engine.Subscribe("create.entry", s.handleCreateEntry)
-	engine.Subscribe("get.entry", s.handleCreateEntry)
+	engine.Subscribe("create.entry", natsby.WithByteReply(), s.handleCreateEntry)
+	engine.Subscribe("get.entry", natsby.WithByteReply(), s.handleGetEntry)
 
 	engine.Run(func() {
 		s.Logger.Info().Msg("Ready to receive messages")
