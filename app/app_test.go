@@ -44,7 +44,7 @@ func TestCreateReadFlow(t *testing.T) {
 	}
 
 	tester := &Principle{
-		Type: PrincipleTypeTest,
+		Type: PrincipleTEST,
 	}
 
 	err = app.ResetEntries(tester)
@@ -54,7 +54,7 @@ func TestCreateReadFlow(t *testing.T) {
 	}
 
 	author := &Principle{
-		Type: PrincipleTypeUser,
+		Type: PrincipleUSER,
 		ID:   "123",
 	}
 
