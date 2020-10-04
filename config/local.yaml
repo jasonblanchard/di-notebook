@@ -4,3 +4,6 @@ DB_PASSWORD: di
 DB_HOST: localhost
 DB_PORT: 5432
 DATABASE: di_notebook
+NATS_URL: nats://127.0.0.1:4222
+PRETTY: true
+DEBUG: true

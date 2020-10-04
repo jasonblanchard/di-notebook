@@ -14,6 +14,7 @@ func makeApp() (*App, error) {
 		Password: "di",
 		Dbname:   "di_notebook",
 		Host:     "localhost",
+		Port:     "5432",
 	})
 
 	if err != nil {

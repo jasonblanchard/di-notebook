@@ -13,11 +13,12 @@ type NewConnectionInput struct {
 	Password string
 	Dbname   string
 	Host     string
+	Port     string
 }
 
 // NewConnection Helper for creating postgres connection
 func NewConnection(i *NewConnectionInput) (*sql.DB, error) {
-	connStr := fmt.Sprintf("user=%s password=%s host=%s dbname=%s sslmode=disable", i.User, i.Password, i.Host, i.Dbname)
+	connStr := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=disable", i.User, i.Password, i.Host, i.Port, i.Dbname)
 	connection, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, errors.Wrap(err, "Database connetion failed")

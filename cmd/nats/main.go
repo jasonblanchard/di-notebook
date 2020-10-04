@@ -1,11 +1,22 @@
 package main
 
 import (
+	"flag"
+
 	_ "github.com/lib/pq"
 )
 
 func main() {
-	service, err := NewService()
+	var cfgFile string
+	flag.StringVar(&cfgFile, "config", "", "Config file")
+	flag.Parse()
+
+	err := initConfig(cfgFile)
+	if err != nil {
+		panic(err)
+	}
+
+	service, err := NewServiceFromEnv()
 	if err != nil {
 		panic(err)
 	}

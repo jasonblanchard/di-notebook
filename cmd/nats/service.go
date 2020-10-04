@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+	"github.com/spf13/viper"
 )
 
 // Service service container
@@ -19,14 +21,33 @@ type Service struct {
 	NATSConnection *nats.Conn
 }
 
-// NewService create a new service
-// TODO: parameterize input
-func NewService() (*Service, error) {
+func initConfig(cfgFile string) error {
+	viper.SetConfigFile(cfgFile)
+	viper.AutomaticEnv()
+	if err := viper.ReadInConfig(); err == nil {
+		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	}
+
+	return nil
+}
+
+// NewServiceFromEnv create a new service
+func NewServiceFromEnv() (*Service, error) {
+	dbUser := viper.GetString("DB_USER")
+	dbPassword := viper.GetString("DB_PASSWORD")
+	dbHost := viper.GetString("DB_HOST")
+	dbPort := viper.GetString("DB_PORT")
+	database := viper.GetString("DATABASE")
+	natsURL := viper.GetString("NATS_URL")
+	debug := viper.GetBool("DEBUG")
+	pretty := viper.GetBool("PRETTY")
+
 	db, err := postgres.NewConnection(&postgres.NewConnectionInput{
-		User:     "di",
-		Password: "di",
-		Dbname:   "di_notebook",
-		Host:     "localhost",
+		User:     dbUser,
+		Password: dbPassword,
+		Dbname:   database,
+		Host:     dbHost,
+		Port:     dbPort,
 	})
 
 	if err != nil {
@@ -41,14 +62,12 @@ func NewService() (*Service, error) {
 		Db: db,
 	}
 
-	nc, err := nats.Connect(nats.DefaultURL)
+	nc, err := nats.Connect(natsURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "NATS initialization failed")
 	}
 
-	logger := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().Logger()
-	zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	zerolog.DurationFieldUnit = time.Second
+	logger := initializeLogger(debug, pretty)
 
 	s := &Service{
 		App: &app.App{
@@ -56,10 +75,24 @@ func NewService() (*Service, error) {
 			StoreWriter: writer,
 		},
 		NATSConnection: nc,
-		Logger:         &logger,
+		Logger:         logger,
 	}
 
 	return s, nil
+}
+
+func initializeLogger(debug, pretty bool) *zerolog.Logger {
+	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
+	if pretty == true {
+		logger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().Logger()
+	}
+
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	if debug == true {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+	zerolog.DurationFieldUnit = time.Second
+	return &logger
 }
 
 // Run start all listeners
