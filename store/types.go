@@ -5,9 +5,17 @@ import (
 	"time"
 )
 
+// CreateEntryInput input for CreateEntry
+type CreateEntryInput struct {
+	Text      string
+	CreatorID string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 // Writer interface for write ops to the store
 type Writer interface {
-	CreateEntry(text string, creatorID string) (int, error)
+	CreateEntry(*CreateEntryInput) (int, error)
 	DropEntries() error
 }
 

@@ -47,9 +47,7 @@ func TestEndToEnd(t *testing.T) {
 		panic(err)
 	}
 
-	a.ResetEntries(&app.Principal{
-		Type: app.PrincipalTEST,
-	})
+	a.StoreWriter.DropEntries()
 
 	nc, err := nats.Connect(nats.DefaultURL)
 	if err != nil {

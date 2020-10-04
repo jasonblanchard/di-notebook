@@ -44,11 +44,7 @@ func TestCreateReadFlow(t *testing.T) {
 		panic(err)
 	}
 
-	tester := &Principal{
-		Type: PrincipalTEST,
-	}
-
-	err = app.ResetEntries(tester)
+	err = app.StoreWriter.DropEntries()
 
 	if err != nil {
 		panic(err)

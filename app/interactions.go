@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/jasonblanchard/di-notebook/store"
 	"github.com/pkg/errors"
 )
 
@@ -14,15 +15,11 @@ type StartNewEntryInput struct {
 // StartNewEntry start writing a new entry
 func (a *App) StartNewEntry(i *StartNewEntryInput) (int, error) {
 	// TODO: Check policy to make sure principle can do this
-	return a.StoreWriter.CreateEntry(i.Text, i.CreatorID)
-}
-
-// ResetEntries drop all entries. Usually used for testing
-func (a *App) ResetEntries(p *Principal) error {
-	if !canResetEntries(p) {
-		return &UnauthorizedError{s: "Principle cannot drop entries"}
+	createEntryInput := &store.CreateEntryInput{
+		Text:      i.Text,
+		CreatorID: i.CreatorID,
 	}
-	return a.StoreWriter.DropEntries()
+	return a.StoreWriter.CreateEntry(createEntryInput)
 }
 
 // ReadEntryInput Input for ReadEntry

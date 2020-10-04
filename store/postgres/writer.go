@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/jasonblanchard/di-notebook/store"
 	"github.com/pkg/errors"
 )
 
@@ -13,15 +14,23 @@ type Writer struct {
 }
 
 // CreateEntry Creates an entry in the DB
-func (w *Writer) CreateEntry(text string, creatorID string) (int, error) {
-	// TODO: Allow passing in all values
-	now := time.Now()
+func (w *Writer) CreateEntry(i *store.CreateEntryInput) (int, error) {
+	if i.CreatedAt.IsZero() {
+		i.CreatedAt = time.Now()
+	}
+
+	var updatedAt sql.NullTime
+
+	if !i.UpdatedAt.IsZero() {
+		updatedAt.Time = i.UpdatedAt
+		updatedAt.Valid = true
+	}
 
 	row := w.Db.QueryRow(`
-INSERT INTO entries (text, creator_id, created_at)
-VALUES ($1, $2, $3)
+INSERT INTO entries (text, creator_id, created_at, updated_at)
+VALUES ($1, $2, $3, $4)
 RETURNING id
-`, text, creatorID, now)
+`, i.Text, i.CreatorID, i.CreatedAt, updatedAt)
 
 	var id int
 	err := row.Scan(&id)
