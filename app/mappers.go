@@ -12,3 +12,14 @@ func StoreGetEntryOutputToEntry(o *store.GetEntryOutput) *Entry {
 		UpdatedAt: o.UpdatedAt.Time,
 	}
 }
+
+// StoreUpdateEntryOutputToEntry mapper
+func StoreUpdateEntryOutputToEntry(o *store.UpdateEntryOutput) *Entry {
+	return &Entry{
+		ID:        o.ID,
+		Text:      o.Text,
+		CreatorID: o.CreatorID,
+		CreatedAt: o.CreatedAt,
+		UpdatedAt: o.UpdatedAt,
+	}
+}

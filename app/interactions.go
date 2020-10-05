@@ -44,6 +44,36 @@ func (a *App) ReadEntry(i *ReadEntryInput) (*Entry, error) {
 	return entry, nil
 }
 
+// ChangeEntryInput input for ChangeEntry
+type ChangeEntryInput struct {
+	Principal *Principal
+	ID        int
+	Text      string
+}
+
+// ChangeEntry Change an existing entry
+func (a *App) ChangeEntry(i *ChangeEntryInput) (*Entry, error) {
+	getEntryOutput, err := a.StoreReader.GetEntry(i.ID)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetEntry failed")
+	}
+
+	entry := StoreGetEntryOutputToEntry(getEntryOutput)
+
+	if !canChangeEntry(i.Principal, entry) {
+		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot change entry"}, "Unauthorized")
+	}
+
+	updateOutput, err := a.StoreWriter.UpdateEntry(&store.UpdateEntryInput{
+		ID:   i.ID,
+		Text: i.Text,
+	})
+
+	updatedEntry := StoreUpdateEntryOutputToEntry(updateOutput)
+
+	return updatedEntry, nil
+}
+
 // DiscardEntryInput Input for ReadEntry
 type DiscardEntryInput struct {
 	Principal *Principal
@@ -52,7 +82,6 @@ type DiscardEntryInput struct {
 
 // DiscardEntry marks entry as deleted
 func (a *App) DiscardEntry(i *DiscardEntryInput) error {
-	// TODO: Check policy to make sure principal can do this
 	getEntryOutput, err := a.StoreReader.GetEntry(i.ID)
 	if err != nil {
 		return errors.Wrap(err, "Error getting entry")

@@ -12,3 +12,7 @@ func canReadEntry(p *Principal, entry *Entry) bool {
 func canDiscardEntry(p *Principal, entry *Entry) bool {
 	return p.ID == entry.CreatorID
 }
+
+func canChangeEntry(p *Principal, entry *Entry) bool {
+	return p.ID == entry.CreatorID
+}

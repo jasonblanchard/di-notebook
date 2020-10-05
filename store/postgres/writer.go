@@ -41,6 +41,27 @@ RETURNING id
 	return id, nil
 }
 
+// UpdateEntry update entry instance
+func (w *Writer) UpdateEntry(i *store.UpdateEntryInput) (*store.UpdateEntryOutput, error) {
+	now := time.Now()
+
+	row := w.Db.QueryRow(`
+UPDATE entries
+SET text = $1, updated_at = $2
+WHERE id = $3
+AND is_deleted = false
+RETURNING id, text, creator_id, created_at, updated_at
+`, i.Text, now, i.ID)
+
+	output := &store.UpdateEntryOutput{}
+	err := row.Scan(&output.ID, &output.Text, &output.CreatorID, &output.CreatedAt, &output.UpdatedAt)
+	if err != nil {
+		return nil, errors.Wrap(row.Err(), "Error updateing entry")
+	}
+
+	return output, nil
+}
+
 // DeleteEntry delete entry instance
 func (w *Writer) DeleteEntry(id int) error {
 	row := w.Db.QueryRow(`
@@ -57,6 +78,7 @@ WHERE id = $1
 }
 
 // DropEntries Drop all entries in the DB
+// Only used internally for tests and such
 func (w *Writer) DropEntries() error {
 	rows, err := w.Db.Query("DELETE FROM entries")
 	if rows != nil {

@@ -129,3 +129,44 @@ func DiscardEntryToDeleteEntryResponse() ([]byte, error) {
 	}
 	return data, nil
 }
+
+// UpdateEntryRequestToChangeEntryInput mapper
+func UpdateEntryRequestToChangeEntryInput(data []byte) (*app.ChangeEntryInput, error) {
+	updateEntryRequest := &entry.UpdateEntryRequest{}
+	err := proto.Unmarshal(data, updateEntryRequest)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error unmarshalling request")
+	}
+
+	id, err := strconv.Atoi(updateEntryRequest.Payload.Id)
+
+	changeEntryInput := &app.ChangeEntryInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   updateEntryRequest.Context.Principal.Id,
+		},
+		ID:   id,
+		Text: updateEntryRequest.Payload.Text,
+	}
+
+	return changeEntryInput, nil
+}
+
+// ChangeEntryOutputToUpdateEntryResponse mapper
+func ChangeEntryOutputToUpdateEntryResponse(e *app.Entry) ([]byte, error) {
+	updateEntryResponse := &entry.UpdateEntryResponse{
+		Payload: &entry.UpdateEntryResponse_Payload{
+			Id:        fmt.Sprintf("%d", e.ID),
+			Text:      e.Text,
+			CreatedAt: timeToProtoTime(e.CreatedAt),
+			UpdatedAt: timeToProtoTime(e.UpdatedAt),
+		},
+	}
+
+	output, err := proto.Marshal(updateEntryResponse)
+	if err != nil {
+		errors.Wrap(err, "Wrror marshalling updateEntryResponse")
+	}
+
+	return output, nil
+}

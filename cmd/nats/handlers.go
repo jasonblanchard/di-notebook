@@ -45,6 +45,26 @@ func (s *Service) handleGetEntry(c *natsby.Context) {
 	c.ByteReplyPayload = response
 }
 
+func (s *Service) handleUpdateEntry(c *natsby.Context) {
+	changeEntryInput, err := protobufmapper.UpdateEntryRequestToChangeEntryInput(c.Msg.Data)
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error mapping request")
+		return
+	}
+
+	entry, err := s.ChangeEntry(changeEntryInput)
+
+	response, err := protobufmapper.ChangeEntryOutputToUpdateEntryResponse(entry)
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error mapping response")
+		return
+	}
+
+	// TODO: Dispatch info.entry.updated
+
+	c.ByteReplyPayload = response
+}
+
 func (s *Service) handleDeleteEntry(c *natsby.Context) {
 	deleteEntryInput, err := protobufmapper.DeleteEntryRequestToDiscardEntryInput(c.Msg.Data)
 	if err != nil {
