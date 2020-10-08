@@ -100,3 +100,33 @@ func (a *App) DiscardEntry(i *DiscardEntryInput) error {
 
 	return nil
 }
+
+// ListEntriesInput input for ListEntries
+type ListEntriesInput struct {
+	CreatorID string
+	First     int
+	After     int
+}
+
+// ListEntriesOutput output for ListEntries
+// TODO: Include pagination info
+type ListEntriesOutput []Entry
+
+// ListEntries lists entries
+func (a *App) ListEntries(i *ListEntriesInput) (ListEntriesOutput, error) {
+	// TODO: Check policy
+
+	listEntriesOutput, err := a.StoreReader.ListEntries(&store.ListEntriesInput{
+		CreatorID: i.CreatorID,
+		First:     i.First,
+		After:     i.After,
+	})
+
+	if err != nil {
+		return nil, errors.Wrap(err, "Error listing entries")
+	}
+
+	output := listEntryOutputToEntries(listEntriesOutput)
+
+	return output, nil
+}

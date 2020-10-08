@@ -45,7 +45,27 @@ type GetEntryOutput struct {
 	UpdatedAt sql.NullTime
 }
 
+// ListEntriesInput input for ListEntries
+type ListEntriesInput struct {
+	CreatorID string
+	First     int
+	After     int
+}
+
+// ListEntriesOutput singular output for ListEntries
+type ListEntriesOutput struct {
+	ID        int
+	Text      string
+	CreatorID string
+	CreatedAt time.Time
+	UpdatedAt sql.NullTime
+}
+
+// ListEntriesOutputCollection composit output
+type ListEntriesOutputCollection []ListEntriesOutput
+
 // Reader interface
 type Reader interface {
 	GetEntry(id int) (*GetEntryOutput, error)
+	ListEntries(*ListEntriesInput) (*ListEntriesOutputCollection, error)
 }

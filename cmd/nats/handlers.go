@@ -60,7 +60,7 @@ func (s *Service) handleUpdateEntry(c *natsby.Context) {
 		return
 	}
 
-	// TODO: Dispatch info.entry.updated
+	// TODO: Dispatch info.entry.updated... for now. Maybe use an internal even bus? Or a callback?
 
 	c.ByteReplyPayload = response
 }

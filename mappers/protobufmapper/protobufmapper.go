@@ -81,8 +81,11 @@ func EntryToGetEntryResponse(e *app.Entry) ([]byte, error) {
 			Id:        fmt.Sprintf("%d", e.ID),
 			Text:      e.Text,
 			CreatedAt: timeToProtoTime(e.CreatedAt),
-			UpdatedAt: timeToProtoTime(e.UpdatedAt),
 		},
+	}
+
+	if !e.UpdatedAt.IsZero() {
+		getEntryResponse.Payload.UpdatedAt = timeToProtoTime(e.UpdatedAt)
 	}
 
 	output, err := proto.Marshal(getEntryResponse)
