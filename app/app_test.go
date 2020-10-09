@@ -183,7 +183,6 @@ func TestListEntries(t *testing.T) {
 	last := output[len(output)-1]
 	lastID := last.ID
 
-	// TODO: Get next n after last
 	output, err = app.ListEntries(&ListEntriesInput{
 		CreatorID: "123",
 		First:     5,
@@ -201,5 +200,24 @@ func TestListEntries(t *testing.T) {
 		assert.Equal(t, o.Text, fmt.Sprintf("Hello %d", nums[i]))
 	}
 
-	// TODO: Get n after last where n > what's left
+	// TODO: Check pagination data
+	last = output[len(output)-1]
+	lastID = last.ID
+
+	output, err = app.ListEntries(&ListEntriesInput{
+		CreatorID: "123",
+		First:     20,
+		After:     lastID,
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	nums = []int{9, 8, 7, 6, 5, 4, 3, 2, 1, 0}
+
+	assert.Equal(t, len(output), 10)
+	for i, o := range output {
+		assert.Equal(t, o.Text, fmt.Sprintf("Hello %d", nums[i]))
+	}
 }
