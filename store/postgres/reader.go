@@ -55,7 +55,11 @@ SELECT id, text, creator_id, created_at, updated_at
 FROM entries
 WHERE creator_id = $1
 AND is_deleted = false
-AND id < $2
+AND created_at < (
+	SELECT created_at
+	FROM entries
+	WHERE id = $2
+)
 ORDER BY created_at DESC
 LIMIT $3
 		`, i.CreatorID, i.After, i.First)
