@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/jasonblanchard/di-notebook/store"
 	"github.com/pkg/errors"
@@ -102,7 +101,7 @@ AND is_deleted = false
 	row = r.Db.QueryRow(`
 SELECT COUNT(*)
 FROM (
-	SELECT id
+	SELECT
 	FROM entries
 	WHERE creator_id = $1
 	AND is_deleted = false
@@ -111,7 +110,6 @@ FROM (
 		FROM entries
 		WHERE id = $2
 	)
-	ORDER BY created_at DESC
 	LIMIT $3
 ) AS count
 	`, i.CreatorID, i.EndCursor, i.First)
@@ -121,8 +119,6 @@ FROM (
 	if err != nil {
 		return nil, errors.Wrap(err, "Error calculating hasNextPage")
 	}
-
-	fmt.Println(countAfterCursor)
 
 	hasNextPage := countAfterCursor > 0
 
