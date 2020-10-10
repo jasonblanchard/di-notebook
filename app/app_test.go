@@ -162,11 +162,17 @@ func TestListEntries(t *testing.T) {
 		panic(err)
 	}
 
+	author := &Principal{
+		Type: PrincipalUSER,
+		ID:   "123",
+	}
+
 	err = createEntries(app, "123", 20)
 
 	output, err := app.ListEntries(&ListEntriesInput{
 		CreatorID: "123",
 		First:     5,
+		Principal: author,
 	})
 
 	if err != nil {
@@ -179,7 +185,7 @@ func TestListEntries(t *testing.T) {
 	for i, o := range output.Entries {
 		assert.Equal(t, o.Text, fmt.Sprintf("Hello %d", nums[i]))
 	}
-	// TODO: Check pagination data
+
 	assert.Equal(t, output.Pagination.TotalCount, 20)
 	assert.Equal(t, output.Pagination.HasNextPage, true)
 
@@ -187,6 +193,7 @@ func TestListEntries(t *testing.T) {
 		CreatorID: "123",
 		First:     5,
 		After:     output.Pagination.EndCursor,
+		Principal: author,
 	})
 
 	if err != nil {
@@ -204,6 +211,7 @@ func TestListEntries(t *testing.T) {
 		CreatorID: "123",
 		First:     20,
 		After:     output.Pagination.EndCursor,
+		Principal: author,
 	})
 
 	if err != nil {

@@ -35,7 +35,7 @@ func (a *App) ReadEntry(i *ReadEntryInput) (*Entry, error) {
 		return nil, errors.Wrap(err, "GetEntry failed")
 	}
 
-	entry := StoreGetEntryOutputToEntry(getEntryOutput)
+	entry := storeGetEntryOutputToEntry(getEntryOutput)
 
 	if !canReadEntry(i.Principal, entry) {
 		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot read entry"}, "Unauthorized")
@@ -58,7 +58,7 @@ func (a *App) ChangeEntry(i *ChangeEntryInput) (*Entry, error) {
 		return nil, errors.Wrap(err, "GetEntry failed")
 	}
 
-	entry := StoreGetEntryOutputToEntry(getEntryOutput)
+	entry := storeGetEntryOutputToEntry(getEntryOutput)
 
 	if !canChangeEntry(i.Principal, entry) {
 		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot change entry"}, "Unauthorized")
@@ -69,7 +69,7 @@ func (a *App) ChangeEntry(i *ChangeEntryInput) (*Entry, error) {
 		Text: i.Text,
 	})
 
-	updatedEntry := StoreUpdateEntryOutputToEntry(updateOutput)
+	updatedEntry := storeUpdateEntryOutputToEntry(updateOutput)
 
 	return updatedEntry, nil
 }
@@ -87,7 +87,7 @@ func (a *App) DiscardEntry(i *DiscardEntryInput) error {
 		return errors.Wrap(err, "Error getting entry")
 	}
 
-	entry := StoreGetEntryOutputToEntry(getEntryOutput)
+	entry := storeGetEntryOutputToEntry(getEntryOutput)
 
 	if !canDiscardEntry(i.Principal, entry) {
 		return errors.Wrap(&UnauthorizedError{s: "Principal cannot read entry"}, "Unauthorized")
@@ -103,6 +103,7 @@ func (a *App) DiscardEntry(i *DiscardEntryInput) error {
 
 // ListEntriesInput input for ListEntries
 type ListEntriesInput struct {
+	Principal *Principal
 	CreatorID string
 	First     int
 	After     int
@@ -124,7 +125,9 @@ type ListEntriesOutput struct {
 
 // ListEntries lists entries
 func (a *App) ListEntries(i *ListEntriesInput) (*ListEntriesOutput, error) {
-	// TODO: Check policy
+	if !canListEntries(i.Principal, i.CreatorID) {
+		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot list entries"}, "Unauthorized")
+	}
 
 	input := &store.ListEntriesInput{
 		CreatorID: i.CreatorID,

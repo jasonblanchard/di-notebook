@@ -4,8 +4,7 @@ import (
 	"github.com/jasonblanchard/di-notebook/store"
 )
 
-// StoreGetEntryOutputToEntry mapper
-func StoreGetEntryOutputToEntry(o *store.GetEntryOutput) *Entry {
+func storeGetEntryOutputToEntry(o *store.GetEntryOutput) *Entry {
 	return &Entry{
 		ID:        o.ID,
 		Text:      o.Text,
@@ -15,8 +14,7 @@ func StoreGetEntryOutputToEntry(o *store.GetEntryOutput) *Entry {
 	}
 }
 
-// StoreUpdateEntryOutputToEntry mapper
-func StoreUpdateEntryOutputToEntry(o *store.UpdateEntryOutput) *Entry {
+func storeUpdateEntryOutputToEntry(o *store.UpdateEntryOutput) *Entry {
 	return &Entry{
 		ID:        o.ID,
 		Text:      o.Text,
@@ -26,7 +24,6 @@ func StoreUpdateEntryOutputToEntry(o *store.UpdateEntryOutput) *Entry {
 	}
 }
 
-// listEntryOutputToEntries mapper
 func listEntryOutputToEntries(o *store.ListEntriesOutputCollection) []Entry {
 	entries := make([]Entry, len(*o))
 
