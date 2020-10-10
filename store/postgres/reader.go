@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/jasonblanchard/di-notebook/store"
 	"github.com/pkg/errors"
@@ -81,4 +82,54 @@ LIMIT $3
 		output = append(output, entry)
 	}
 	return &output, nil
+}
+
+// GetEntriesPaginationInfo get entries pagination
+func (r *Reader) GetEntriesPaginationInfo(i *store.GetPaginationInfoInput) (*store.GetEntriesPaginationInfoOutput, error) {
+	row := r.Db.QueryRow(`
+SELECT COUNT(*)
+FROM entries
+WHERE creator_id = $1
+AND is_deleted = false
+	`, i.CreatorID)
+
+	var totalCount int
+	err := row.Scan(&totalCount)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error getting count")
+	}
+
+	row = r.Db.QueryRow(`
+SELECT COUNT(*)
+FROM (
+	SELECT id
+	FROM entries
+	WHERE creator_id = $1
+	AND is_deleted = false
+	AND created_at < (
+		SELECT created_at
+		FROM entries
+		WHERE id = $2
+	)
+	ORDER BY created_at DESC
+	LIMIT $3
+) AS count
+	`, i.CreatorID, i.EndCursor, i.First)
+
+	var countAfterCursor int
+	err = row.Scan(&countAfterCursor)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error calculating hasNextPage")
+	}
+
+	fmt.Println(countAfterCursor)
+
+	hasNextPage := countAfterCursor > 0
+
+	return &store.GetEntriesPaginationInfoOutput{
+		TotalCount:  totalCount,
+		HasNextPage: hasNextPage,
+		StartCursor: i.StartCursor,
+		EndCursor:   i.EndCursor,
+	}, nil
 }

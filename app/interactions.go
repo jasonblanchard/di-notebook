@@ -108,25 +108,58 @@ type ListEntriesInput struct {
 	After     int
 }
 
+// ListEntriesPagination pagination info for entries list
+type ListEntriesPagination struct {
+	TotalCount  int
+	HasNextPage bool
+	StartCursor int
+	EndCursor   int
+}
+
 // ListEntriesOutput output for ListEntries
-// TODO: Include pagination info
-type ListEntriesOutput []Entry
+type ListEntriesOutput struct {
+	Entries    []Entry
+	Pagination ListEntriesPagination
+}
 
 // ListEntries lists entries
-func (a *App) ListEntries(i *ListEntriesInput) (ListEntriesOutput, error) {
+func (a *App) ListEntries(i *ListEntriesInput) (*ListEntriesOutput, error) {
 	// TODO: Check policy
 
-	listEntriesOutput, err := a.StoreReader.ListEntries(&store.ListEntriesInput{
+	input := &store.ListEntriesInput{
 		CreatorID: i.CreatorID,
 		First:     i.First,
 		After:     i.After,
-	})
+	}
+
+	listEntriesOutput, err := a.StoreReader.ListEntries(input)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "Error listing entries")
 	}
 
-	output := listEntryOutputToEntries(listEntriesOutput)
+	entries := listEntryOutputToEntries(listEntriesOutput)
+
+	pagination, err := a.StoreReader.GetEntriesPaginationInfo(&store.GetPaginationInfoInput{
+		CreatorID:   i.CreatorID,
+		First:       i.First,
+		StartCursor: entries[0].ID,
+		EndCursor:   entries[len(entries)-1].ID,
+	})
+
+	if err != nil {
+		return nil, errors.Wrap(err, "Error getting pagination info")
+	}
+
+	output := &ListEntriesOutput{
+		Entries: entries,
+		Pagination: ListEntriesPagination{
+			TotalCount:  pagination.TotalCount,
+			HasNextPage: pagination.HasNextPage,
+			StartCursor: pagination.StartCursor,
+			EndCursor:   pagination.EndCursor,
+		},
+	}
 
 	return output, nil
 }

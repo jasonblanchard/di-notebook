@@ -175,18 +175,18 @@ func TestListEntries(t *testing.T) {
 
 	nums := []int{19, 18, 17, 16, 15}
 
-	assert.Equal(t, len(output), 5)
-	for i, o := range output {
+	assert.Equal(t, len(output.Entries), 5)
+	for i, o := range output.Entries {
 		assert.Equal(t, o.Text, fmt.Sprintf("Hello %d", nums[i]))
 	}
 	// TODO: Check pagination data
-	last := output[len(output)-1]
-	lastID := last.ID
+	assert.Equal(t, output.Pagination.TotalCount, 20)
+	assert.Equal(t, output.Pagination.HasNextPage, true)
 
 	output, err = app.ListEntries(&ListEntriesInput{
 		CreatorID: "123",
 		First:     5,
-		After:     lastID,
+		After:     output.Pagination.EndCursor,
 	})
 
 	if err != nil {
@@ -195,19 +195,15 @@ func TestListEntries(t *testing.T) {
 
 	nums = []int{14, 13, 12, 11, 10}
 
-	assert.Equal(t, len(output), 5)
-	for i, o := range output {
+	assert.Equal(t, len(output.Entries), 5)
+	for i, o := range output.Entries {
 		assert.Equal(t, o.Text, fmt.Sprintf("Hello %d", nums[i]))
 	}
-
-	// TODO: Check pagination data
-	last = output[len(output)-1]
-	lastID = last.ID
 
 	output, err = app.ListEntries(&ListEntriesInput{
 		CreatorID: "123",
 		First:     20,
-		After:     lastID,
+		After:     output.Pagination.EndCursor,
 	})
 
 	if err != nil {
@@ -216,8 +212,9 @@ func TestListEntries(t *testing.T) {
 
 	nums = []int{9, 8, 7, 6, 5, 4, 3, 2, 1, 0}
 
-	assert.Equal(t, len(output), 10)
-	for i, o := range output {
+	assert.Equal(t, len(output.Entries), 10)
+	for i, o := range output.Entries {
 		assert.Equal(t, o.Text, fmt.Sprintf("Hello %d", nums[i]))
 	}
+	assert.Equal(t, output.Pagination.HasNextPage, false)
 }

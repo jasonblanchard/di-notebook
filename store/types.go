@@ -64,8 +64,25 @@ type ListEntriesOutput struct {
 // ListEntriesOutputCollection composit output
 type ListEntriesOutputCollection []ListEntriesOutput
 
+// GetPaginationInfoInput singular output for GetPaginationInfo
+type GetPaginationInfoInput struct {
+	CreatorID   string
+	First       int
+	StartCursor int
+	EndCursor   int
+}
+
+// GetEntriesPaginationInfoOutput output for GetEntriesPaginationInfo
+type GetEntriesPaginationInfoOutput struct {
+	TotalCount  int
+	HasNextPage bool
+	StartCursor int
+	EndCursor   int
+}
+
 // Reader interface
 type Reader interface {
 	GetEntry(id int) (*GetEntryOutput, error)
 	ListEntries(*ListEntriesInput) (*ListEntriesOutputCollection, error)
+	GetEntriesPaginationInfo(*GetPaginationInfoInput) (*GetEntriesPaginationInfoOutput, error)
 }
