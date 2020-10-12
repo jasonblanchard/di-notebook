@@ -62,6 +62,9 @@ func GetEntryRequestToReadEntryInput(data []byte) (*app.ReadEntryInput, error) {
 	}
 
 	id, err := strconv.Atoi(getEntryRequest.Payload.Id)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error converting string to int")
+	}
 
 	readEntryInput := &app.ReadEntryInput{
 		Principal: &app.Principal{
@@ -111,6 +114,9 @@ func DeleteEntryRequestToDiscardEntryInput(data []byte) (*app.DiscardEntryInput,
 	}
 
 	id, err := strconv.Atoi(deleteEntryRequest.Payload.Id)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error converting string to int")
+	}
 
 	discardEntryInput := &app.DiscardEntryInput{
 		Principal: &app.Principal{
@@ -142,6 +148,9 @@ func UpdateEntryRequestToChangeEntryInput(data []byte) (*app.ChangeEntryInput, e
 	}
 
 	id, err := strconv.Atoi(updateEntryRequest.Payload.Id)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error converting string to int")
+	}
 
 	changeEntryInput := &app.ChangeEntryInput{
 		Principal: &app.Principal{
@@ -172,4 +181,61 @@ func ChangeEntryOutputToUpdateEntryResponse(e *app.Entry) ([]byte, error) {
 	}
 
 	return output, nil
+}
+
+// ListEntriesRequestToListEntriesInput mapper
+func ListEntriesRequestToListEntriesInput(data []byte) (*app.ListEntriesInput, error) {
+	request := &entry.ListEntriesRequest{}
+	err := proto.Unmarshal(data, request)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error unmarshalling request")
+	}
+
+	after, err := strconv.Atoi(request.Payload.After)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error converting string to int")
+	}
+
+	listEntriesInput := &app.ListEntriesInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalTEST,
+			ID:   request.Context.Principal.Id,
+		},
+		CreatorID: request.Payload.CreatorId,
+		First:     int(request.Payload.First),
+		After:     after,
+	}
+
+	return listEntriesInput, nil
+}
+
+// ListEntriesOutputToListEntriesResponse mapper
+func ListEntriesOutputToListEntriesResponse(i *app.ListEntriesOutput) ([]byte, error) {
+	response := &entry.ListEntriesResponse{
+		PageInfo: &entry.ListEntriesResponse_PageInfo{
+			TotalCount:  int32(i.Pagination.TotalCount),
+			HasNextPage: i.Pagination.HasNextPage,
+			StartCursor: fmt.Sprintf("%d", i.Pagination.StartCursor),
+			EndCursor:   fmt.Sprintf("%d", i.Pagination.EndCursor),
+		},
+	}
+
+	for _, entryInstance := range i.Entries {
+		entity := &entry.ListEntriesResponse_Entity{
+			Id:        fmt.Sprintf("%d", entryInstance.ID),
+			Text:      entryInstance.Text,
+			CreatorId: entryInstance.CreatorID,
+			CreatedAt: timeToProtoTime(entryInstance.CreatedAt),
+			UpdatedAt: timeToProtoTime(entryInstance.UpdatedAt),
+		}
+
+		response.Payload = append(response.Payload, entity)
+	}
+
+	responseData, err := proto.Marshal(response)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error marshalling response")
+	}
+
+	return responseData, nil
 }

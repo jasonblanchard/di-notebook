@@ -86,3 +86,22 @@ func (s *Service) handleDeleteEntry(c *natsby.Context) {
 
 	c.ByteReplyPayload = response
 }
+
+func (s *Service) handleListEntries(c *natsby.Context) {
+	listEntriesInput, err := protobufmapper.ListEntriesRequestToListEntriesInput(c.Msg.Data)
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error mapping request")
+		return
+	}
+
+	output, err := s.ListEntries(listEntriesInput)
+
+	response, err := protobufmapper.ListEntriesOutputToListEntriesResponse(output)
+
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error mapping response")
+		return
+	}
+
+	c.ByteReplyPayload = response
+}
