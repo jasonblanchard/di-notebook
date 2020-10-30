@@ -12,4 +12,6 @@ store
   - writer.go   <- interface for write operations. Accepts various arg shapes and returns DTO types defined in app.
   - postgres    <- concrete reader/writer store types for postgres. Holds logic for creating DB connections and logic for querying
 
-
+TODO:
+- Use go-migrate to run migrations, use github source + tag in cluster job
+- Use buildpack instead of dockerfile
