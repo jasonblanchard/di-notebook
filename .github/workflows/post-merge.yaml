@@ -17,3 +17,14 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
     - name: build & push
       run: make push
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: jasonblanchard/di-deploy/.github/actions/deploy-dispatch@main
+        with:
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          token: ${{ secrets.DEPLOY_TOKEN }}
+          service: notebook
+          environment: production
+          version: ${{ github.sha }}
