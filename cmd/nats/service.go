@@ -102,6 +102,7 @@ func (s *Service) Run() error {
 		return errors.Wrap(err, "Failed to initialize engine")
 	}
 
+	// TODO: Enable prometheus
 	engine.Use(natsby.WithLogger(s.Logger))
 
 	// engine.Subscribe("create.entry", natsby.WithByteReply(), s.handleCreateEntry)

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: di-notebook-psql
+spec:
+  type: ExternalName
+  externalName: di-notebook.cluster-cscliqw1dfil.us-east-1.rds.amazonaws.com
