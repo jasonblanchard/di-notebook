@@ -23,7 +23,8 @@ migration:
 	migrate create -ext sql -dir cmd/db/migrations -seq $$SEQ
 
 build:
-	pack build ${IMAGE_REPO} --builder ${BUILDER}
+	# pack build ${IMAGE_REPO} --builder ${BUILDER}
+	docker build -t ${IMAGE_REPO} .
 	docker tag ${IMAGE_REPO} ${VERSION_TAG}
 
 push: build

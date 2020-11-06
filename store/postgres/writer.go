@@ -56,7 +56,7 @@ RETURNING id, text, creator_id, created_at, updated_at
 	output := &store.UpdateEntryOutput{}
 	err := row.Scan(&output.ID, &output.Text, &output.CreatorID, &output.CreatedAt, &output.UpdatedAt)
 	if err != nil {
-		return nil, errors.Wrap(row.Err(), "Error updateing entry")
+		return nil, errors.Wrap(err, "Error updateing entry")
 	}
 
 	return output, nil
@@ -64,14 +64,14 @@ RETURNING id, text, creator_id, created_at, updated_at
 
 // DeleteEntry delete entry instance
 func (w *Writer) DeleteEntry(id int) error {
-	row := w.Db.QueryRow(`
+	_, err := w.Db.Query(`
 UPDATE entries
 SET is_deleted = TRUE
 WHERE id = $1
 `, id)
 
-	if row.Err() != nil {
-		return errors.Wrap(row.Err(), "Delete failed")
+	if err != nil {
+		return errors.Wrap(err, "Delete failed")
 	}
 
 	return nil
