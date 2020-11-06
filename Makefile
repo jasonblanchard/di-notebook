@@ -24,9 +24,9 @@ migration:
 docker-build:
 	docker build -t ${LOCAL_TAG} .
 
-docker-tag: build
+docker-tag: docker-build
 	docker tag ${LOCAL_TAG} ${SHA_TAG}
 
-docker-push: tag
+docker-push: docker-tag
 	docker push ${LATEST_TAG}
 	docker push ${SHA_TAG}
