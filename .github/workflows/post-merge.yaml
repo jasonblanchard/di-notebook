@@ -1,0 +1,13 @@
+name: post merge
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Build and publish to Registry
+      run: |
+        make docker-push
