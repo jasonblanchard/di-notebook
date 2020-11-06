@@ -107,6 +107,11 @@ func (s *Service) handleListEntries(c *natsby.Context) {
 
 	output, err := s.ListEntries(listEntriesInput)
 
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error ListEntries")
+		return
+	}
+
 	response, err := protobufmapper.ListEntriesOutputToListEntriesResponse(output)
 
 	if err != nil {
