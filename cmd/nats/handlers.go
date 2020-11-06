@@ -67,6 +67,11 @@ func (s *Service) handleUpdateEntry(c *natsby.Context) {
 		c.NatsConnection.Publish("provisional.info.entry.updated", infoEntryUpdatedPayload)
 	})
 
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error ChangeEntry")
+		return
+	}
+
 	response, err := protobufmapper.ChangeEntryOutputToUpdateEntryResponse(entry)
 	if err != nil {
 		c.Err = errors.Wrap(err, "Error mapping response")
