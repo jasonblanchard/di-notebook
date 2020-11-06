@@ -51,8 +51,10 @@ type ChangeEntryInput struct {
 	Text      string
 }
 
+type callback func(*Entry)
+
 // ChangeEntry Change an existing entry
-func (a *App) ChangeEntry(i *ChangeEntryInput) (*Entry, error) {
+func (a *App) ChangeEntry(i *ChangeEntryInput, callbacks ...callback) (*Entry, error) {
 	getEntryOutput, err := a.StoreReader.GetEntry(i.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetEntry failed")
@@ -70,6 +72,10 @@ func (a *App) ChangeEntry(i *ChangeEntryInput) (*Entry, error) {
 	})
 
 	updatedEntry := storeUpdateEntryOutputToEntry(updateOutput)
+
+	for _, f := range callbacks {
+		f(updatedEntry)
+	}
 
 	return updatedEntry, nil
 }

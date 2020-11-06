@@ -183,6 +183,25 @@ func ChangeEntryOutputToUpdateEntryResponse(e *app.Entry) ([]byte, error) {
 	return output, nil
 }
 
+// ChangeEntryOutputToInfoEntryUpdated mapper
+func ChangeEntryOutputToInfoEntryUpdated(e *app.Entry) ([]byte, error) {
+	infoEntryUpdated := &entry.InfoEntryUpdated{
+		Payload: &entry.InfoEntryUpdated_Payload{
+			Id:        fmt.Sprintf("%d", e.ID),
+			Text:      e.Text,
+			CreatedAt: timeToProtoTime(e.CreatedAt),
+			UpdatedAt: timeToProtoTime(e.UpdatedAt),
+		},
+	}
+
+	output, err := proto.Marshal(infoEntryUpdated)
+	if err != nil {
+		errors.Wrap(err, "Wrror marshalling infoEntryUpdated")
+	}
+
+	return output, nil
+}
+
 // ListEntriesRequestToListEntriesInput mapper
 func ListEntriesRequestToListEntriesInput(data []byte) (*app.ListEntriesInput, error) {
 	request := &entry.ListEntriesRequest{}

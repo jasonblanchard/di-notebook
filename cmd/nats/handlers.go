@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/jasonblanchard/di-notebook/app"
 	"github.com/jasonblanchard/di-notebook/mappers/protobufmapper"
 	"github.com/jasonblanchard/natsby"
 	"github.com/pkg/errors"
@@ -52,15 +53,20 @@ func (s *Service) handleUpdateEntry(c *natsby.Context) {
 		return
 	}
 
-	entry, err := s.ChangeEntry(changeEntryInput)
+	entry, err := s.ChangeEntry(changeEntryInput, func(entry *app.Entry) {
+		infoEntryUpdatedPayload, err := protobufmapper.ChangeEntryOutputToInfoEntryUpdated(entry)
+		if err != nil {
+			c.Err = errors.Wrap(err, "Error mapping info")
+			return
+		}
+		c.NatsConnection.Publish("provisional.info.entry.updated", infoEntryUpdatedPayload)
+	})
 
 	response, err := protobufmapper.ChangeEntryOutputToUpdateEntryResponse(entry)
 	if err != nil {
 		c.Err = errors.Wrap(err, "Error mapping response")
 		return
 	}
-
-	// TODO: Dispatch info.entry.updated... for now. Maybe use an internal even bus? Or a callback?
 
 	c.ByteReplyPayload = response
 }
