@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	_ "github.com/lib/pq"
+
 	"github.com/jasonblanchard/di-notebook/app"
 	"github.com/jasonblanchard/di-notebook/di_messages/entry"
 	"github.com/jasonblanchard/di-notebook/store/postgres"

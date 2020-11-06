@@ -71,6 +71,10 @@ func (a *App) ChangeEntry(i *ChangeEntryInput, callbacks ...callback) (*Entry, e
 		Text: i.Text,
 	})
 
+	if err != nil {
+		return nil, errors.Wrap(err, "UpdateEntry failed")
+	}
+
 	updatedEntry := storeUpdateEntryOutputToEntry(updateOutput)
 
 	for _, f := range callbacks {

@@ -210,7 +210,13 @@ func ListEntriesRequestToListEntriesInput(data []byte) (*app.ListEntriesInput, e
 		return nil, errors.Wrap(err, "Error unmarshalling request")
 	}
 
-	after, err := strconv.Atoi(request.Payload.After)
+	var after int
+	if request.Payload.After == "" {
+		after = 0
+	} else {
+		after, err = strconv.Atoi(request.Payload.After)
+	}
+
 	if err != nil {
 		return nil, errors.Wrap(err, "Error converting string to int")
 	}
@@ -257,4 +263,14 @@ func ListEntriesOutputToListEntriesResponse(i *app.ListEntriesOutput) ([]byte, e
 	}
 
 	return responseData, nil
+}
+
+// ToEntryError mapper
+func ToEntryError(message string) ([]byte, error) {
+	errorMessage := &entry.Error{
+		Code:    entry.Error_UNKNOWN, // TODO: Make this configurable
+		Message: message,
+	}
+
+	return proto.Marshal(errorMessage)
 }

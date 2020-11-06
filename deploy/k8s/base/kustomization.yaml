@@ -7,5 +7,5 @@ commonLabels:
   app: notebook
 configMapGenerator:
 - literals:
-  - NATS_HOST=nats://nats:4222
+  - NATS_URL=nats://nats:4222
   name: notebook-config

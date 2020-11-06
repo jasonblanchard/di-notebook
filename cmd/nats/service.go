@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/jasonblanchard/di-notebook/app"
+	"github.com/jasonblanchard/di-notebook/mappers/protobufmapper"
 	"github.com/jasonblanchard/di-notebook/store/postgres"
 	"github.com/jasonblanchard/natsby"
 	"github.com/nats-io/nats.go"
@@ -103,6 +104,20 @@ func (s *Service) Run() error {
 	}
 
 	// TODO: Enable prometheus
+	engine.Use(natsby.WithCustomRecovery(func(c *natsby.Context, err interface{}) {
+		s.Logger.Error().Msg(fmt.Sprintf("%v", err))
+
+		payload, err := protobufmapper.ToEntryError("something went wrong")
+
+		if err != nil {
+			s.Logger.Error().Msg(fmt.Sprintf("%v", err))
+			return
+		}
+
+		if c.Msg.Reply != "" {
+			c.NatsConnection.Publish(c.Msg.Reply, payload)
+		}
+	}))
 	engine.Use(natsby.WithLogger(s.Logger))
 
 	// engine.Subscribe("create.entry", natsby.WithByteReply(), s.handleCreateEntry)
