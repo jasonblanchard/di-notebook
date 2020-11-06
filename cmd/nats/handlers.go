@@ -38,6 +38,11 @@ func (s *Service) handleGetEntry(c *natsby.Context) {
 
 	entry, err := s.ReadEntry(readEntryInput)
 
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error ReadEntry")
+		return
+	}
+
 	response, err := protobufmapper.EntryToGetEntryResponse(entry)
 	if err != nil {
 		c.Err = errors.Wrap(err, "Error mapping response")
