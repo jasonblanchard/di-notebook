@@ -1,9 +1,10 @@
+BUILDER=heroku/buildpacks:18
 IMAGE_NAME=di-notebook
-GIT_SHA = $(shell git rev-parse HEAD)
 IMAGE_REPO=jasonblanchard/${IMAGE_NAME}
-LOCAL_TAG = ${IMAGE_REPO}
-LATEST_TAG= ${IMAGE_REPO}:latest
-SHA_TAG = ${IMAGE_REPO}:${GIT_SHA}
+LOCAL_TAG=${IMAGE_REPO}
+LATEST_TAG=${IMAGE_REPO}:latest
+VERSION=$(shell git rev-parse HEAD)
+VERSION_TAG=${IMAGE_REPO}:${VERSION}
 
 createdb:
 	# createuser -e -d -P -E di
@@ -21,12 +22,10 @@ dbmigratedown:
 migration:
 	migrate create -ext sql -dir cmd/db/migrations -seq $$SEQ
 
-docker-build:
-	docker build -t ${LOCAL_TAG} .
+build:
+	pack build ${IMAGE_REPO} --builder ${BUILDER}
+	docker tag ${IMAGE_REPO} ${VERSION_TAG}
 
-docker-tag: docker-build
-	docker tag ${LOCAL_TAG} ${SHA_TAG}
-
-docker-push: docker-tag
+push: build
 	docker push ${LATEST_TAG}
-	docker push ${SHA_TAG}
+	docker push ${VERSION_TAG}
