@@ -21,7 +21,7 @@ spec:
         image: migrate/migrate:latest
         command:
           - migrate
-          - -path=github://jasonblanchard/di-notebook/migrationsh#$(VERSION)
+          - -path=github://jasonblanchard/di-notebook/migrations#$(VERSION)
           - -database=postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DATABASE)?sslmode=disable
           - up
         envFrom:
