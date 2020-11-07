@@ -13,8 +13,8 @@ spec:
     spec:
       serviceAccountName: notebook
       containers:
-      - image: jasonblanchard/di-notebook:latest
-        name: notebook
+      - name: notebook
+        image: jasonblanchard/di-notebook:latest
         command: ["./nats"]
         envFrom:
         - configMapRef:

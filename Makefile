@@ -14,10 +14,10 @@ dropdb:
 	dropdb di_notebook
 
 dbmigrate:
-	go run cmd/cli/main.go db migrate --config config/local.yaml
+	migrate -source file://migrations -database postgres://di:di@localhost:5432/di_notebook?sslmode=disable up
 
 dbmigratedown:
-	go run cmd/cli/main.go db migrate -d --config config/local.yaml
+	migrate -source file://migrations -database postgres://di:di@localhost:5432/di_notebook?sslmode=disable down
 
 migration:
 	migrate create -ext sql -dir cmd/db/migrations -seq $$SEQ

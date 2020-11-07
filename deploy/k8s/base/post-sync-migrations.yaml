@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: notebook-migrations
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "1"
+    vault.security.banzaicloud.io/vault-addr: https://vault.vault:8200
+    vault.security.banzaicloud.io/vault-role: di-notebook
+    vault.security.banzaicloud.io/vault-skip-verify: "true"
+spec:
+  serviceAccountName: notebook
+  ttlSecondsAfterFinished: 600
+  template:
+    spec:
+      containers:
+      - name: migrate
+        image: migrate/migrate:latest
+        command:
+          - migrate
+          - -path=github://jasonblanchard/di-notebook/migrationsh#$(VERSION)
+          - -database=postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DATABASE)?sslmode=disable
+          - up
+        envFrom:
+        - configMapRef:
+            name: notebook-config
+        env:
+          - name: VERSION
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.annotations['version']
+      restartPolicy: Never
+  backoffLimit: 0

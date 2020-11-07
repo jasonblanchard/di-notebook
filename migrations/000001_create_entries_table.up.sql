@@ -7,4 +7,4 @@ CREATE TABLE IF NOT EXISTS entries(
    is_deleted BOOLEAN DEFAULT false
 );
 
-CREATE INDEX entries_creator_id_id_idx ON entries (creator_id, id);
+CREATE INDEX IF NOT EXISTS entries_creator_id_id_idx ON entries (creator_id, id);
