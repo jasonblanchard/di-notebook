@@ -20,7 +20,7 @@ spec:
       - name: migrate
         image: migrate/migrate:latest
         command:
-          - /bin/bash
+          - /bin/sh
           - -c
           - migrate
           - "-source=github://jasonblanchard:$(GITHUB_TOKEN)@jasonblanchard/di-notebook/migrations#$(VERSION)"
