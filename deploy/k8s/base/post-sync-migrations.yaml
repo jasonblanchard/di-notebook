@@ -20,13 +20,7 @@ spec:
       - name: migrate
         image: migrate/migrate:latest
         command:
-          - /bin/sh
-        args:
-          - -c
-          - migrate
-          - "-source=github://jasonblanchard:$(GITHUB_TOKEN)@jasonblanchard/di-notebook/migrations#$(VERSION)"
-          - "-database=postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DATABASE)?sslmode=disable"
-          - up
+          - /bin/sh -c "migrate -source=github://jasonblanchard:$(GITHUB_TOKEN)@jasonblanchard/di-notebook/migrations#$(VERSION) -database=postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DATABASE)?sslmode=disable up"
         envFrom:
         - configMapRef:
             name: notebook-config
