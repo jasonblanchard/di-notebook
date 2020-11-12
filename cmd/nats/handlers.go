@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/jasonblanchard/di-notebook/app"
 	"github.com/jasonblanchard/di-notebook/mappers/protobufmapper"
 	"github.com/jasonblanchard/natsby"
@@ -33,8 +31,6 @@ func (s *Service) handleCreateEntry(c *natsby.Context) {
 
 func (s *Service) handleGetEntry(c *natsby.Context) {
 	readEntryInput, err := protobufmapper.GetEntryRequestToReadEntryInput(c.Msg.Data)
-
-	s.Logger.Info().Msg(fmt.Sprintf("ID: %v", readEntryInput.ID))
 
 	if err != nil {
 		c.Err = errors.Wrap(err, "Error mapping request")
