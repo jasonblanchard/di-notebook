@@ -120,16 +120,11 @@ func (s *Service) Run() error {
 	}))
 	engine.Use(natsby.WithLogger(s.Logger))
 
-	// engine.Subscribe("create.entry", natsby.WithByteReply(), s.handleCreateEntry)
-	// engine.Subscribe("get.entry", natsby.WithByteReply(), s.handleGetEntry)
-	// engine.Subscribe("delete.entry", natsby.WithByteReply(), s.handleDeleteEntry)
-	// engine.Subscribe("update.entry", natsby.WithByteReply(), s.handleUpdateEntry)
-	// engine.Subscribe("list.entry", natsby.WithByteReply(), s.handleListEntries)
-	engine.Subscribe("create.entry", s.handleCreateEntry)
-	engine.Subscribe("get.entry", s.handleGetEntry)
-	engine.Subscribe("delete.entry", s.handleDeleteEntry)
-	engine.Subscribe("update.entry", s.handleUpdateEntry)
-	engine.Subscribe("list.entry", s.handleListEntries)
+	engine.Subscribe("create.entry", natsby.WithByteReply(), s.handleCreateEntry)
+	engine.Subscribe("get.entry", natsby.WithByteReply(), s.handleGetEntry)
+	engine.Subscribe("delete.entry", natsby.WithByteReply(), s.handleDeleteEntry)
+	engine.Subscribe("update.entry", natsby.WithByteReply(), s.handleUpdateEntry)
+	engine.Subscribe("list.entry", natsby.WithByteReply(), s.handleListEntries)
 
 	engine.Run(func() {
 		s.Logger.Info().Msg("Ready to receive messages")
