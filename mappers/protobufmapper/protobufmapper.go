@@ -84,6 +84,7 @@ func EntryToGetEntryResponse(e *app.Entry) ([]byte, error) {
 			Id:        fmt.Sprintf("%d", e.ID),
 			Text:      e.Text,
 			CreatedAt: timeToProtoTime(e.CreatedAt),
+			UpdatedAt: timeToProtoTime(e.UpdatedAt),
 		},
 	}
 
@@ -100,8 +101,14 @@ func EntryToGetEntryResponse(e *app.Entry) ([]byte, error) {
 }
 
 func timeToProtoTime(time time.Time) *timestamp.Timestamp {
+	seconds := time.Unix()
+
+	if time.IsZero() {
+		seconds = 0
+	}
+
 	return &timestamp.Timestamp{
-		Seconds: time.Unix(),
+		Seconds: seconds,
 	}
 }
 

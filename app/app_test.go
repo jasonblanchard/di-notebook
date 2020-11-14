@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/jasonblanchard/di-notebook/store/postgres"
 	_ "github.com/lib/pq"
@@ -98,6 +99,7 @@ func TestCreateReadFlow(t *testing.T) {
 	assert.Equal(t, output.ID, id)
 	assert.Equal(t, output.Text, "hello")
 	assert.Equal(t, output.CreatorID, "123")
+	assert.Equal(t, output.UpdatedAt, time.Time{})
 }
 
 func TestUpdateFlow(t *testing.T) {
@@ -148,6 +150,7 @@ func TestUpdateFlow(t *testing.T) {
 
 	assert.Equal(t, output.ID, id)
 	assert.Equal(t, output.Text, "hello updated")
+	assert.Equal(t, output.UpdatedAt.Unix() > 0, true)
 }
 
 func TestListEntries(t *testing.T) {

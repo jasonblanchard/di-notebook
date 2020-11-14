@@ -107,5 +107,6 @@ func TestEndToEnd(t *testing.T) {
 	getResponseBody := &entry.GetEntryResponse{}
 	err = proto.Unmarshal(getResponse.Data, getResponseBody)
 
-	assert.Equal(t, getResponseBody.Payload.Text, "Hello, world")
+	assert.Equal(t, "Hello, world", getResponseBody.Payload.Text)
+	assert.Equal(t, int64(0), getResponseBody.Payload.UpdatedAt.Seconds)
 }
