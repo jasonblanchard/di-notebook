@@ -14,6 +14,6 @@ configMapGenerator:
   - DB_PASSWORD=vault:secret/data/di-notebook/production/app#DB_PASSWORD
   - DB_HOST=di-notebook-psql-production
   - DB_PORT=5432
-  - DATABASE=di_notebook
+  - DATABASE=di_entry
   - GITHUB_TOKEN=vault:secret/data/di-notebook/production/app#GITHUB_TOKEN
 nameSuffix: -production

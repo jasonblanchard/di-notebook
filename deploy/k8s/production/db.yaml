@@ -4,4 +4,4 @@ metadata:
   name: di-notebook-psql
 spec:
   type: ExternalName
-  externalName: di-notebook.cluster-cscliqw1dfil.us-east-1.rds.amazonaws.com
+  externalName: di-notebook-cluster.cluster-cscliqw1dfil.us-east-1.rds.amazonaws.com

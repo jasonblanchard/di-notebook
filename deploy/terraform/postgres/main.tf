@@ -25,9 +25,9 @@ resource "aws_db_subnet_group" "default" {
   subnet_ids = [data.terraform_remote_state.vpc.outputs.subnet_us_east_1a_id, data.terraform_remote_state.vpc.outputs.subnet_us_east_1b_id]
 }
 
-variable "db_password" {
-  type    = string
-}
+// variable "db_password" {
+//   type    = string
+// }
 
 # Security Group
 resource "aws_security_group" "postgres" {
@@ -49,29 +49,29 @@ resource "aws_security_group" "postgres" {
   }
 }
 
-resource "aws_rds_cluster" "default" {
-  cluster_identifier      = "di-notebook"
-  engine                  = "aurora-postgresql"
-  db_subnet_group_name    = aws_db_subnet_group.default.name
-  engine_version          = "10.7"
-  engine_mode             = "serverless"
-  database_name           = "di_notebook"
-  master_username         = "postgres"
-  master_password         = var.db_password
-  backup_retention_period = 5
-  vpc_security_group_ids  = [aws_security_group.postgres.id]
-  storage_encrypted       = true
-  skip_final_snapshot     = true
+// resource "aws_rds_cluster" "default" {
+//   cluster_identifier      = "di-notebook"
+//   engine                  = "aurora-postgresql"
+//   db_subnet_group_name    = aws_db_subnet_group.default.name
+//   engine_version          = "10.7"
+//   engine_mode             = "serverless"
+//   database_name           = "di_notebook"
+//   master_username         = "postgres"
+//   master_password         = var.db_password
+//   backup_retention_period = 5
+//   vpc_security_group_ids  = [aws_security_group.postgres.id]
+//   storage_encrypted       = true
+//   skip_final_snapshot     = true
 
-  scaling_configuration {
-    auto_pause               = true
-    max_capacity             = 2
-    min_capacity             = 2
-    seconds_until_auto_pause = 300
-    timeout_action           = "ForceApplyCapacityChange"
-  }
-}
+//   scaling_configuration {
+//     auto_pause               = true
+//     max_capacity             = 2
+//     min_capacity             = 2
+//     seconds_until_auto_pause = 300
+//     timeout_action           = "ForceApplyCapacityChange"
+//   }
+// }
 
-output "database_host" {
-  value = aws_rds_cluster.default.endpoint
-}
+// output "database_host" {
+//   value = aws_rds_cluster.default.endpoint
+// }
