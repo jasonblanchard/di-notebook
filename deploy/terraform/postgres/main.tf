@@ -31,13 +31,13 @@ resource "aws_db_subnet_group" "default" {
 
 # Security Group
 resource "aws_security_group" "postgres" {
-  name        = "DiNotebookPostgres"
-  vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
+  name   = "DiNotebookPostgres"
+  vpc_id = data.terraform_remote_state.vpc.outputs.vpc_id
 
   ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
     security_groups = [data.terraform_remote_state.vpc.outputs.security_group_web_id]
   }
 
@@ -49,29 +49,37 @@ resource "aws_security_group" "postgres" {
   }
 }
 
-// resource "aws_rds_cluster" "default" {
-//   cluster_identifier      = "di-notebook"
-//   engine                  = "aurora-postgresql"
-//   db_subnet_group_name    = aws_db_subnet_group.default.name
-//   engine_version          = "10.7"
-//   engine_mode             = "serverless"
-//   database_name           = "di_notebook"
-//   master_username         = "postgres"
-//   master_password         = var.db_password
-//   backup_retention_period = 5
-//   vpc_security_group_ids  = [aws_security_group.postgres.id]
-//   storage_encrypted       = true
-//   skip_final_snapshot     = true
+resource "aws_rds_cluster_parameter_group" "default" {
+  name        = "default-aurora-postgresql10"
+  family      = "aurora-postgresql10"
+  description = "default-aurora-postgresql10"
+}
 
-//   scaling_configuration {
-//     auto_pause               = true
-//     max_capacity             = 2
-//     min_capacity             = 2
-//     seconds_until_auto_pause = 300
-//     timeout_action           = "ForceApplyCapacityChange"
-//   }
-// }
+resource "aws_rds_cluster" "default" {
+  cluster_identifier   = "di-notebook-cluster"
+  engine               = "aurora-postgresql"
+  // db_subnet_group_name = aws_db_subnet_group.default.name
+  engine_version       = "10.12"
+  engine_mode          = "serverless"
+  database_name        = "di_entry"
+  master_username      = "postgres"
+  // master_password         = var.db_password
+  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.default.name
+  backup_retention_period         = 5
+  vpc_security_group_ids          = [aws_security_group.postgres.id]
+  storage_encrypted               = true
+  skip_final_snapshot             = true
+  copy_tags_to_snapshot           = true
 
-// output "database_host" {
-//   value = aws_rds_cluster.default.endpoint
-// }
+  scaling_configuration {
+    auto_pause               = true
+    max_capacity             = 2
+    min_capacity             = 2
+    seconds_until_auto_pause = 300
+    timeout_action           = "ForceApplyCapacityChange"
+  }
+}
+
+output "database_host" {
+  value = aws_rds_cluster.default.endpoint
+}
