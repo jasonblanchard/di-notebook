@@ -1,10 +1,14 @@
 package main
 
 import (
+	"fmt"
+
+	"github.com/jasonblanchard/di-messages/packages/go/messages/notebook"
 	"github.com/jasonblanchard/di-notebook/app"
 	"github.com/jasonblanchard/di-notebook/mappers/protobufmapper"
 	"github.com/jasonblanchard/natsby"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 )
 
 func (s *Service) handleCreateEntry(c *natsby.Context) {
@@ -47,6 +51,49 @@ func (s *Service) handleGetEntry(c *natsby.Context) {
 	response, err := protobufmapper.EntryToGetEntryResponse(entry)
 	if err != nil {
 		c.Err = errors.Wrap(err, "Error mapping response")
+	}
+
+	c.ByteReplyPayload = response
+}
+
+func (s *Service) handleReadEntry(c *natsby.Context) {
+	readEntryRequest := &notebook.ReadEntryRequest{}
+	err := proto.Unmarshal(c.Msg.Data, readEntryRequest)
+
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error unmarshalling data")
+		return
+	}
+
+	readEntryInput, err := protobufmapper.ReadEntryRequestToReadEntryInput(readEntryRequest)
+
+	traceID := readEntryRequest.GetContext().TraceId
+
+	c.Set("traceID", traceID)
+
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error mapping request")
+		return
+	}
+
+	entry, err := s.ReadEntry(readEntryInput)
+
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error ReadEntry")
+		code := errorToCode(errors.Cause(err))
+		payload, err := protobufmapper.ToNotebookErrorResponse("Permission denied", code, traceID)
+		if err != nil {
+			c.Err = errors.Wrap(err, "ReadEntry Error mapping error")
+			return
+		}
+		c.ByteReplyPayload = payload
+		return
+	}
+
+	response, err := protobufmapper.EntryToReadEntryResponse(entry, traceID)
+	if err != nil {
+		c.Err = errors.Wrap(err, "Error mapping response")
+		return
 	}
 
 	c.ByteReplyPayload = response
@@ -126,4 +173,24 @@ func (s *Service) handleListEntries(c *natsby.Context) {
 	}
 
 	c.ByteReplyPayload = response
+}
+
+func errorHandler(s *Service) natsby.RecoveryFunc {
+	return func(c *natsby.Context, err interface{}) {
+		s.Logger.Error().Msg(fmt.Sprintf("%v", err))
+
+		code := errorToCode(err)
+		traceID := fmt.Sprintf("%v", c.Get("traceID"))
+
+		payload, err := protobufmapper.ToNotebookErrorResponse("something went wrong", code, traceID)
+
+		if err != nil {
+			s.Logger.Error().Msg(fmt.Sprintf("%v", err))
+			return
+		}
+
+		if c.Msg.Reply != "" {
+			c.NatsConnection.Publish(c.Msg.Reply, payload)
+		}
+	}
 }

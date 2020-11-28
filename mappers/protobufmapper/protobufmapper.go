@@ -6,11 +6,16 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/jasonblanchard/di-messages/packages/go/messages/notebook"
 	"github.com/jasonblanchard/di-notebook/app"
 	"github.com/jasonblanchard/di-notebook/di_messages/entry"
 	"github.com/pkg/errors"
+	"google.golang.org/genproto/googleapis/rpc/code"
 	"google.golang.org/protobuf/proto"
 )
+
+// ServiceOrigin service name
+const ServiceOrigin = "notebook"
 
 // CreateEntryRequestToStartNewEntryInput mapping
 func CreateEntryRequestToStartNewEntryInput(data []byte) (*app.StartNewEntryInput, error) {
@@ -77,6 +82,24 @@ func GetEntryRequestToReadEntryInput(data []byte) (*app.ReadEntryInput, error) {
 	return readEntryInput, nil
 }
 
+// ReadEntryRequestToReadEntryInput mapper
+func ReadEntryRequestToReadEntryInput(readEntryRequest *notebook.ReadEntryRequest) (*app.ReadEntryInput, error) {
+	id, err := strconv.Atoi(readEntryRequest.GetPayload().Id)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error converting string to int")
+	}
+
+	readEntryInput := &app.ReadEntryInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   readEntryRequest.GetContext().GetPrincipal().Id,
+		},
+		ID: id,
+	}
+
+	return readEntryInput, nil
+}
+
 // EntryToGetEntryResponse mapper
 func EntryToGetEntryResponse(e *app.Entry) ([]byte, error) {
 	getEntryResponse := &entry.GetEntryResponse{
@@ -100,6 +123,29 @@ func EntryToGetEntryResponse(e *app.Entry) ([]byte, error) {
 	return output, nil
 }
 
+// EntryToReadEntryResponse mapper
+func EntryToReadEntryResponse(e *app.Entry, traceID string) ([]byte, error) {
+	readEntryResponse := &notebook.ReadEntryResponse{
+		Payload: &notebook.ReadEntryResponse_Payload{
+			Id:        fmt.Sprintf("%d", e.ID),
+			Text:      e.Text,
+			CreatedAt: timeToProtoTime(e.CreatedAt),
+			UpdatedAt: timeToNullableProtoTime(e.UpdatedAt),
+		},
+		Context: &notebook.ResponseContext{
+			TraceId: traceID,
+			Origin:  ServiceOrigin,
+		},
+	}
+
+	output, err := proto.Marshal(readEntryResponse)
+	if err != nil {
+		errors.Wrap(err, "Wrror marshalling getEntryResponse")
+	}
+
+	return output, nil
+}
+
 func timeToProtoTime(time time.Time) *timestamp.Timestamp {
 	seconds := time.Unix()
 
@@ -109,6 +155,19 @@ func timeToProtoTime(time time.Time) *timestamp.Timestamp {
 
 	return &timestamp.Timestamp{
 		Seconds: seconds,
+	}
+}
+
+func timeToNullableProtoTime(time time.Time) *notebook.NullableTimestamp {
+	if time.IsZero() {
+		return &notebook.NullableTimestamp{
+			Value: &notebook.NullableTimestamp_Null{},
+		}
+	}
+	return &notebook.NullableTimestamp{
+		Value: &notebook.NullableTimestamp_Timestamp{
+			Timestamp: timeToProtoTime(time),
+		},
 	}
 }
 
@@ -272,12 +331,18 @@ func ListEntriesOutputToListEntriesResponse(i *app.ListEntriesOutput) ([]byte, e
 	return responseData, nil
 }
 
-// ToEntryError mapper
-func ToEntryError(message string) ([]byte, error) {
-	errorMessage := &entry.Error{
-		Code:    entry.Error_UNKNOWN, // TODO: Make this configurable
-		Message: message,
+// ToNotebookErrorResponse mapper
+func ToNotebookErrorResponse(message string, code code.Code, traceID string) ([]byte, error) {
+	errorResponse := &notebook.ErrorResponse{
+		Status: &notebook.Status{
+			Code:    int32(code),
+			Message: message,
+		},
+		Context: &notebook.ResponseContext{
+			TraceId: traceID,
+			Origin:  ServiceOrigin,
+		},
 	}
 
-	return proto.Marshal(errorMessage)
+	return proto.Marshal(errorResponse)
 }

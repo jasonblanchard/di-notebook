@@ -84,7 +84,7 @@ func (a *App) ChangeEntry(i *ChangeEntryInput, callbacks ...callback) (*Entry, e
 	return updatedEntry, nil
 }
 
-// DiscardEntryInput Input for ReadEntry
+// DiscardEntryInput Input for DiscardEntryInput
 type DiscardEntryInput struct {
 	Principal *Principal
 	ID        int
