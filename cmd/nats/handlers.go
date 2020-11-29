@@ -112,7 +112,7 @@ func (s *Service) handleUpdateEntry(c *natsby.Context) {
 			c.Err = errors.Wrap(err, "Error mapping info")
 			return
 		}
-		c.NatsConnection.Publish("provisional.info.entry.updated", infoEntryUpdatedPayload)
+		c.NatsConnection.Publish("info.entry.updated", infoEntryUpdatedPayload)
 	})
 
 	if err != nil {
