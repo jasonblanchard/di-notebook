@@ -35,6 +35,10 @@ func (a *App) ReadEntry(i *ReadEntryInput) (*Entry, error) {
 		return nil, errors.Wrap(err, "GetEntry failed")
 	}
 
+	if getEntryOutput == nil {
+		return nil, errors.Wrap(&NotFoundError{}, "No entry found")
+	}
+
 	entry := storeGetEntryOutputToEntry(getEntryOutput)
 
 	if !canReadEntry(i.Principal, entry) {

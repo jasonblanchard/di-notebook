@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/jasonblanchard/di-messages/packages/go/messages/notebook"
 	"github.com/jasonblanchard/di-notebook/app"
@@ -67,9 +68,29 @@ func NewService() (*Service, error) {
 
 // ReadEntry implements ReadEntry
 func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPCRequest) (*notebook.ReadEntryGRPCResponse, error) {
+	id, err := strconv.Atoi(request.GetPayload().GetId())
+	if err != nil {
+		return nil, MapError(err)
+	}
+
+	readEntryInput := &app.ReadEntryInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   request.GetRequestContext().GetPrincipal().Id,
+		},
+		ID: id,
+	}
+
+	entry, err := s.App.ReadEntry(readEntryInput)
+	if err != nil {
+		return nil, MapError(err)
+	}
+
 	response := &notebook.ReadEntryGRPCResponse{
-		Id:   "123",
-		Text: "testing, testing",
+		Payload: &notebook.ReadEntryGRPCResponse_Payload{
+			Id:   fmt.Sprintf("%d", entry.ID),
+			Text: entry.Text,
+		},
 	}
 	return response, nil
 }

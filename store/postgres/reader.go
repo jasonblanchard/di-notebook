@@ -23,6 +23,10 @@ AND is_deleted = false
 
 	output := &store.GetEntryOutput{}
 	err := row.Scan(&output.ID, &output.Text, &output.CreatorID, &output.CreatedAt, &output.UpdatedAt)
+	if err == sql.ErrNoRows {
+		// TODO: This is kinda dumb... maybe throw an error type?
+		return nil, nil
+	}
 	if err != nil {
 		return nil, errors.Wrap(err, "query failed")
 	}

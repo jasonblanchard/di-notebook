@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"testing"
 
 	"github.com/jasonblanchard/di-messages/packages/go/messages/notebook"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func TestReadEntry(t *testing.T) {
@@ -21,15 +22,26 @@ func TestReadEntry(t *testing.T) {
 	client := notebook.NewNotebookClient(conn)
 
 	request := &notebook.ReadEntryGRPCRequest{
-		Id: "123",
+		RequestContext: &notebook.GRPCRequestContext{
+			Principal: &notebook.Principal{
+				Id:   "1",
+				Type: notebook.Principal_USER,
+			},
+		},
+		Payload: &notebook.ReadEntryGRPCRequest_Payload{
+			Id: "123",
+		},
 	}
 
 	ctx := context.TODO()
 
-	response, err := client.ReadEntry(ctx, request)
+	_, err = client.ReadEntry(ctx, request)
 
-	fmt.Println(response)
+	status, _ := status.FromError(err)
+	assert.Equal(t, status.Code(), codes.NotFound)
 
-	assert.Equal(t, "123", response.GetId())
-	assert.Equal(t, "testing, testing", response.GetText())
+	// assert.Nil(t, err)
+
+	// assert.Equal(t, "", response.GetId())
+	// assert.Equal(t, "", response.GetText())
 }

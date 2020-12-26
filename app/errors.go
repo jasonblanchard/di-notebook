@@ -14,3 +14,18 @@ func (e *UnauthorizedError) Error() string {
 func (e *UnauthorizedError) Unauthorized() bool {
 	return true
 }
+
+// NotFoundError not found in store
+type NotFoundError struct {
+	s string
+}
+
+// Error interface
+func (e *NotFoundError) Error() string {
+	return e.s
+}
+
+// NotFound always returns true for this error type. Can be used by the caller for error checking by behavior
+func (e *NotFoundError) NotFound() bool {
+	return true
+}
