@@ -6,18 +6,25 @@ LATEST_TAG=${IMAGE_REPO}:latest
 VERSION=$(shell git rev-parse HEAD)
 VERSION_TAG=${IMAGE_REPO}:${VERSION}
 
-createdb:
-	# createuser -e -d -P -E di
-	createdb -U di -e -O di di_notebook
+db:
+	docker run --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=testpass -d postgres:11
+	docker exec -it -e PGPASSWORD=testpass -e PGUSER=postgres postgres createuser -e -d -P -E di
+	docker exec -it -e PGPASSWORD=testpass -e PGUSER=postgres postgres createdb -U di -e -O di di_notebook
 
-dropdb:
-	dropdb di_notebook
+dbclean:
+	docker kill postgres && docker rm postgres
+
+dbconnect:
+	docker run --rm -it --network=host -e PGPASSWORD=testpass -e PGUSER=postgres -e PGHOST=localhost postgres:11 /bin/bash
 
 dbmigrate:
-	migrate -source file://migrations -database postgres://di:di@localhost:5432/di_notebook?sslmode=disable up
+	docker run -v $(shell pwd):/di --network host migrate/migrate --source file:///di/migrations -database postgres://di:di@localhost:5432/di_notebook?sslmode=disable up
 
 dbmigratedown:
-	migrate -source file://migrations -database postgres://di:di@localhost:5432/di_notebook?sslmode=disable down
+	docker run -v $(shell pwd):/di --network host -it migrate/migrate -source file://di/migrations -database postgres://di:di@localhost:5432/di_notebook?sslmode=disable down
+
+dbdrop:
+	docker run -v $(shell pwd):/di --network host -it migrate/migrate -source file://di/migrations -database postgres://di:di@localhost:5432/di_notebook?sslmode=disable drop
 
 migration:
 	migrate create -ext sql -dir cmd/db/migrations -seq $$SEQ

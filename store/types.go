@@ -29,6 +29,7 @@ type UpdateEntryOutput struct {
 }
 
 // Writer interface for write ops to the store
+// TODO: Add reader methods to writer and initialize
 type Writer interface {
 	CreateEntry(*CreateEntryInput) (int, error)
 	UpdateEntry(*UpdateEntryInput) (*UpdateEntryOutput, error)
