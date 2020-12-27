@@ -24,8 +24,12 @@ func main() {
 		panic(err)
 	}
 
-	// TODO: Make configurable
-	port := "8080"
+	s, err := NewService()
+	if err != nil {
+		panic(err)
+	}
+
+	port := s.Port
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%s", port))
 	if err != nil {
@@ -33,16 +37,11 @@ func main() {
 	}
 	defer lis.Close()
 
-	fmt.Println(fmt.Sprintf("Listening on port %s", port))
+	s.Logger.Info(fmt.Sprintf("Listening on port %s 🚀", port))
 
-	s, err := NewService()
-	if err != nil {
-		panic(err)
-	}
+	defer s.Logger.Sync()
 
-	defer s.logger.Sync()
-
-	grpc_zap.ReplaceGrpcLoggerV2(s.logger)
+	grpc_zap.ReplaceGrpcLoggerV2(s.Logger)
 
 	recoveryOpts := []grpc_recovery.Option{
 		grpc_recovery.WithRecoveryHandler(s.handleError),
@@ -51,12 +50,12 @@ func main() {
 	grpcServer := grpc.NewServer(
 		grpc_middleware.WithUnaryServerChain(
 			grpc_ctxtags.UnaryServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
-			grpc_zap.UnaryServerInterceptor(s.logger),
+			grpc_zap.UnaryServerInterceptor(s.Logger),
 			grpc_recovery.UnaryServerInterceptor(recoveryOpts...),
 		),
 		grpc_middleware.WithStreamServerChain(
 			grpc_ctxtags.StreamServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
-			grpc_zap.StreamServerInterceptor(s.logger),
+			grpc_zap.StreamServerInterceptor(s.Logger),
 			grpc_recovery.StreamServerInterceptor(recoveryOpts...),
 		),
 	)

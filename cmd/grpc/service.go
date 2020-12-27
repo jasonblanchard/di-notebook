@@ -21,7 +21,8 @@ import (
 type Service struct {
 	*app.App
 	notebook.UnimplementedNotebookServer
-	logger *zap.Logger
+	Logger *zap.Logger
+	Port   string
 }
 
 func initConfig(cfgFile string) error {
@@ -42,6 +43,11 @@ func NewService() (*Service, error) {
 	dbPort := viper.GetString("DB_PORT")
 	database := viper.GetString("DATABASE")
 	pretty := viper.GetBool("PRETTY")
+	port := viper.GetString("PORT")
+
+	s := &Service{}
+
+	s.Port = port
 
 	db, err := postgres.NewConnection(&postgres.NewConnectionInput{
 		User:     dbUser,
@@ -63,11 +69,9 @@ func NewService() (*Service, error) {
 		Db: db,
 	}
 
-	s := &Service{
-		App: &app.App{
-			StoreReader: reader,
-			StoreWriter: writer,
-		},
+	s.App = &app.App{
+		StoreReader: reader,
+		StoreWriter: writer,
 	}
 
 	var logger *zap.Logger
@@ -82,7 +86,7 @@ func NewService() (*Service, error) {
 		return nil, errors.Wrap(err, "Failed to create logger")
 	}
 
-	s.logger = logger
+	s.Logger = logger
 
 	return s, nil
 }
