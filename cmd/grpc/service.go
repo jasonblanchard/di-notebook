@@ -99,6 +99,10 @@ func (s *Service) handleError(p interface{}) error {
 
 // ReadEntry implements ReadEntry
 func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPCRequest) (*notebook.ReadEntryGRPCResponse, error) {
+	if request.GetPayload().GetId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "Id is required")
+	}
+
 	id, err := strconv.Atoi(request.GetPayload().GetId())
 	if err != nil {
 		return nil, MapError(err)
@@ -131,6 +135,10 @@ func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPC
 
 // StartNewEntry implements StartNewEntry
 func (s *Service) StartNewEntry(ctx context.Context, request *notebook.StartNewEntryGRPCRequest) (*notebook.StartNewEntryGRPCResponse, error) {
+	if request.GetPayload().CreatorId == "" {
+		return nil, status.Error(codes.InvalidArgument, "CreatorId is required")
+	}
+
 	input := &app.StartNewEntryInput{
 		Principal: &app.Principal{
 			Type: app.PrincipalUSER,
@@ -138,8 +146,6 @@ func (s *Service) StartNewEntry(ctx context.Context, request *notebook.StartNewE
 		},
 		CreatorID: request.GetPayload().CreatorId,
 	}
-
-	// TODO: Input validation
 
 	id, err := s.App.StartNewEntry(input)
 	if err != nil {
