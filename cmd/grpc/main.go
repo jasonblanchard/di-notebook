@@ -10,8 +10,6 @@ import (
 	"github.com/jasonblanchard/di-messages/packages/go/messages/notebook"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 func main() {
@@ -27,16 +25,6 @@ func main() {
 	// TODO: Make configurable
 	port := "8080"
 
-	errorHandler := func(p interface{}) (err error) {
-		fmt.Println("Oops")
-		fmt.Println(err)
-		return status.Errorf(codes.Unknown, "panic triggered: %v", p)
-	}
-
-	opts := []grpc_recovery.Option{
-		grpc_recovery.WithRecoveryHandler(errorHandler),
-	}
-
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%s", port))
 	if err != nil {
 		panic(err)
@@ -50,12 +38,16 @@ func main() {
 		panic(err)
 	}
 
+	recoveryOpts := []grpc_recovery.Option{
+		grpc_recovery.WithRecoveryHandler(s.handleError),
+	}
+
 	grpcServer := grpc.NewServer(
 		grpc_middleware.WithUnaryServerChain(
-			grpc_recovery.UnaryServerInterceptor(opts...),
+			grpc_recovery.UnaryServerInterceptor(recoveryOpts...),
 		),
 		grpc_middleware.WithStreamServerChain(
-			grpc_recovery.StreamServerInterceptor(opts...),
+			grpc_recovery.StreamServerInterceptor(recoveryOpts...),
 		),
 	)
 	notebook.RegisterNotebookServer(grpcServer, s)

@@ -9,7 +9,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.13.0
 	github.com/golang/protobuf v1.4.3
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
-	github.com/jasonblanchard/di-messages/packages/go v0.0.0-20201226225311-5a4af75795e6
+	github.com/jasonblanchard/di-messages/packages/go v0.0.0-20201227212650-db5267eeadf7
 	github.com/jasonblanchard/natsby v0.0.1
 	github.com/lib/pq v1.8.0
 	github.com/magiconair/properties v1.8.1

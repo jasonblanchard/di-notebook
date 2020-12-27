@@ -296,6 +296,8 @@ github.com/jackc/puddle v0.0.0-20190413234325-e4ced69a3a2b/go.mod h1:m4B5Dj62Y0f
 github.com/jackc/puddle v0.0.0-20190608224051-11cab39313c9/go.mod h1:m4B5Dj62Y0fbyuIc15OsIqK0+JU8nkqQjsgx7dvjSWk=
 github.com/jasonblanchard/di-messages/packages/go v0.0.0-20201226225311-5a4af75795e6 h1:kvS6MyWdAYwbXtzfzv7Cr8UikTk5LUBdzw9AAYC2cJc=
 github.com/jasonblanchard/di-messages/packages/go v0.0.0-20201226225311-5a4af75795e6/go.mod h1:/d5kkWTvv+CO2iEH1gT+QWMULhxIZFLv5vBo7w6W4KY=
+github.com/jasonblanchard/di-messages/packages/go v0.0.0-20201227212650-db5267eeadf7 h1:eIPXPAujMAWm4cdLdDElsYoTjvefyx1+sC4dd4DYuqs=
+github.com/jasonblanchard/di-messages/packages/go v0.0.0-20201227212650-db5267eeadf7/go.mod h1:/d5kkWTvv+CO2iEH1gT+QWMULhxIZFLv5vBo7w6W4KY=
 github.com/jasonblanchard/natsby v0.0.1 h1:7B3X/YKCCANQNJJFTMF/KuSOeJOA2whYGsqV41bd9Cg=
 github.com/jasonblanchard/natsby v0.0.1/go.mod h1:0YZe15+jF88pkS6HFi65YRHjJzBvW0uVOOZg2fgS7lM=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=

@@ -4,12 +4,16 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jasonblanchard/di-messages/packages/go/messages/notebook"
 	"github.com/jasonblanchard/di-notebook/app"
 	"github.com/jasonblanchard/di-notebook/store/postgres"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // Service service container
@@ -66,6 +70,12 @@ func NewService() (*Service, error) {
 	return s, nil
 }
 
+func (s *Service) handleError(p interface{}) error {
+	fmt.Println("Oops")
+	fmt.Println(fmt.Sprintf("panic triggered: %v", p))
+	return status.Errorf(codes.Unknown, "panic triggered: %v", p)
+}
+
 // ReadEntry implements ReadEntry
 func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPCRequest) (*notebook.ReadEntryGRPCResponse, error) {
 	id, err := strconv.Atoi(request.GetPayload().GetId())
@@ -76,7 +86,7 @@ func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPC
 	readEntryInput := &app.ReadEntryInput{
 		Principal: &app.Principal{
 			Type: app.PrincipalUSER,
-			ID:   request.GetRequestContext().GetPrincipal().Id,
+			ID:   request.GetPrincipal().Id,
 		},
 		ID: id,
 	}
@@ -88,9 +98,50 @@ func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPC
 
 	response := &notebook.ReadEntryGRPCResponse{
 		Payload: &notebook.ReadEntryGRPCResponse_Payload{
-			Id:   fmt.Sprintf("%d", entry.ID),
-			Text: entry.Text,
+			Id:        fmt.Sprintf("%d", entry.ID),
+			CreatorId: entry.CreatorID,
+			Text:      entry.Text,
+			CreatedAt: timeToProtoTime(entry.CreatedAt),
+			UpdatedAt: nil,
 		},
 	}
 	return response, nil
+}
+
+// StartNewEntry implements StartNewEntry
+func (s *Service) StartNewEntry(ctx context.Context, request *notebook.StartNewEntryGRPCRequest) (*notebook.StartNewEntryGRPCResponse, error) {
+	input := &app.StartNewEntryInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   request.GetPrincipal().GetId(),
+		},
+		CreatorID: request.GetPayload().CreatorId,
+	}
+
+	// TODO: Input validation
+
+	id, err := s.App.StartNewEntry(input)
+	if err != nil {
+		return nil, MapError(err)
+	}
+
+	response := &notebook.StartNewEntryGRPCResponse{
+		Payload: &notebook.StartNewEntryGRPCResponse_Payload{
+			Id: fmt.Sprintf("%d", id),
+		},
+	}
+
+	return response, nil
+}
+
+func timeToProtoTime(time time.Time) *timestamp.Timestamp {
+	seconds := time.Unix()
+
+	if time.IsZero() {
+		seconds = 0
+	}
+
+	return &timestamp.Timestamp{
+		Seconds: seconds,
+	}
 }
