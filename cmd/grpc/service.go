@@ -12,6 +12,7 @@ import (
 	"github.com/jasonblanchard/di-notebook/store/postgres"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -20,6 +21,7 @@ import (
 type Service struct {
 	*app.App
 	notebook.UnimplementedNotebookServer
+	logger *zap.Logger
 }
 
 func initConfig(cfgFile string) error {
@@ -39,6 +41,7 @@ func NewService() (*Service, error) {
 	dbHost := viper.GetString("DB_HOST")
 	dbPort := viper.GetString("DB_PORT")
 	database := viper.GetString("DATABASE")
+	pretty := viper.GetBool("PRETTY")
 
 	db, err := postgres.NewConnection(&postgres.NewConnectionInput{
 		User:     dbUser,
@@ -66,6 +69,20 @@ func NewService() (*Service, error) {
 			StoreWriter: writer,
 		},
 	}
+
+	var logger *zap.Logger
+
+	if pretty == true {
+		logger, err = zap.NewDevelopment()
+	} else {
+		logger, err = zap.NewProduction()
+	}
+
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to create logger")
+	}
+
+	s.logger = logger
 
 	return s, nil
 }

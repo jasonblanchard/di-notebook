@@ -22,6 +22,8 @@ require (
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.3.2
 	github.com/stretchr/testify v1.6.1
+	go.uber.org/multierr v1.6.0 // indirect
+	go.uber.org/zap v1.16.0
 	golang.org/x/net v0.0.0-20201029221708-28c70e62bb1d // indirect
 	golang.org/x/sys v0.0.0-20201029080932-201ba4db2418 // indirect
 	google.golang.org/genproto v0.0.0-20201030142918-24207fddd1c3
