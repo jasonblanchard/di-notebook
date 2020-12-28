@@ -7,3 +7,5 @@ spec:
     - name: grpc
       protocol: TCP
       port: 8080
+  selector:
+    role: grpc
