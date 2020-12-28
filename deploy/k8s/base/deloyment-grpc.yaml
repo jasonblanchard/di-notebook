@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notebook-grpc
+spec:
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        vault.security.banzaicloud.io/vault-addr: https://vault.vault:8200
+        vault.security.banzaicloud.io/vault-role: di-notebook
+        vault.security.banzaicloud.io/vault-skip-verify: "true"
+    spec:
+      serviceAccountName: notebook
+      containers:
+      - name: notebook
+        image: jasonblanchard/di-notebook:latest
+        command: ["./grpc"]
+        ports:
+          - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: notebook-config
