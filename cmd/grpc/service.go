@@ -127,8 +127,11 @@ func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPC
 			CreatorId: entry.CreatorID,
 			Text:      entry.Text,
 			CreatedAt: timeToProtoTime(entry.CreatedAt),
-			UpdatedAt: nil,
 		},
+	}
+
+	if !entry.UpdatedAt.IsZero() {
+		response.Payload.UpdatedAt = timeToProtoTime(entry.UpdatedAt)
 	}
 	return response, nil
 }

@@ -47,6 +47,7 @@ func main() {
 		fmt.Fprintf(w, "ok")
 	})
 
+	// TODO: Make this better, configurable and check in healthcheck
 	go func() {
 		http.ListenAndServe(":8081", nil)
 	}()
