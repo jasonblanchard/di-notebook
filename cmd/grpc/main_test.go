@@ -80,7 +80,7 @@ func TestCreateAndRead(t *testing.T) {
 
 	a.StoreWriter.DropEntries()
 
-	conn, err := grpc.Dial("localhost:8080", grpc.WithInsecure())
+	conn, err := grpc.Dial("0.0.0.0:8080", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)
 	}
