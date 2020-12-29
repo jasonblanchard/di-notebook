@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"net/http"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -40,6 +41,15 @@ func main() {
 	s.Logger.Info(fmt.Sprintf("Listening on port %s 🚀", port))
 
 	defer s.Logger.Sync()
+
+	http.HandleFunc("/health", func(w http.ResponseWriter, req *http.Request) {
+		s.Logger.Info("/health")
+		fmt.Fprintf(w, "ok")
+	})
+
+	go func() {
+		http.ListenAndServe(":8081", nil)
+	}()
 
 	grpc_zap.ReplaceGrpcLoggerV2(s.Logger)
 

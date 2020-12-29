@@ -23,6 +23,7 @@ spec:
         command: ["./grpc"]
         ports:
           - containerPort: 8080
+          - containerPort: 8081
         envFrom:
         - configMapRef:
             name: notebook-config
