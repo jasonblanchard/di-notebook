@@ -106,7 +106,7 @@ func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPC
 	id, err := strconv.Atoi(request.GetPayload().GetId())
 	if err != nil {
 		s.Logger.Error(err.Error())
-		return nil, MapError(err)
+		return nil, status.Error(codes.NotFound, "Not found")
 	}
 
 	readEntryInput := &app.ReadEntryInput{
