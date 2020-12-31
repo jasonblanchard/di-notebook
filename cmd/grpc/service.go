@@ -105,6 +105,7 @@ func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPC
 
 	id, err := strconv.Atoi(request.GetPayload().GetId())
 	if err != nil {
+		s.Logger.Error(err.Error())
 		return nil, MapError(err)
 	}
 
@@ -118,6 +119,7 @@ func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPC
 
 	entry, err := s.App.ReadEntry(readEntryInput)
 	if err != nil {
+		s.Logger.Error(err.Error())
 		return nil, MapError(err)
 	}
 
@@ -152,6 +154,7 @@ func (s *Service) StartNewEntry(ctx context.Context, request *notebook.StartNewE
 
 	id, err := s.App.StartNewEntry(input)
 	if err != nil {
+		s.Logger.Error(err.Error())
 		return nil, MapError(err)
 	}
 

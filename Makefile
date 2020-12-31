@@ -7,6 +7,7 @@ VERSION=$(shell git rev-parse HEAD)
 VERSION_TAG=${IMAGE_REPO}:${VERSION}
 
 db:
+	docker rm postgres
 	docker run --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=testpass -d postgres:11
 	docker exec -it -e PGPASSWORD=testpass -e PGUSER=postgres postgres createuser -e -d -P -E di
 	docker exec -it -e PGPASSWORD=testpass -e PGUSER=postgres postgres createdb -U di -e -O di di_notebook
