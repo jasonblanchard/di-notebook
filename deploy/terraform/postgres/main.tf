@@ -75,7 +75,7 @@ resource "aws_rds_cluster" "default" {
     auto_pause               = true
     max_capacity             = 2
     min_capacity             = 2
-    seconds_until_auto_pause = 300
+    seconds_until_auto_pause = 900
     timeout_action           = "ForceApplyCapacityChange"
   }
 }
