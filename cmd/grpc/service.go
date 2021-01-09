@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
@@ -14,7 +15,9 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 )
 
 // Service service container
@@ -92,8 +95,6 @@ func NewService() (*Service, error) {
 }
 
 func (s *Service) handleError(p interface{}) error {
-	fmt.Println("Oops")
-	fmt.Println(fmt.Sprintf("panic triggered: %v", p))
 	return status.Errorf(codes.Unknown, "panic triggered: %v", p)
 }
 
@@ -101,6 +102,18 @@ func (s *Service) handleError(p interface{}) error {
 func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPCRequest) (*notebook.ReadEntryGRPCResponse, error) {
 	if request.GetPayload().GetId() == "" {
 		return nil, status.Error(codes.InvalidArgument, "Id is required")
+	}
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok != true {
+		s.Logger.Error("No metadata")
+		return nil, status.Error(codes.Unknown, "Error")
+	}
+
+	principal, err := getPrincipal(md)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, status.Error(codes.Unauthenticated, "Error")
 	}
 
 	id, err := strconv.Atoi(request.GetPayload().GetId())
@@ -112,7 +125,7 @@ func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPC
 	readEntryInput := &app.ReadEntryInput{
 		Principal: &app.Principal{
 			Type: app.PrincipalUSER,
-			ID:   request.GetPrincipal().Id,
+			ID:   principal.GetId(),
 		},
 		ID: id,
 	}
@@ -140,16 +153,29 @@ func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPC
 
 // StartNewEntry implements StartNewEntry
 func (s *Service) StartNewEntry(ctx context.Context, request *notebook.StartNewEntryGRPCRequest) (*notebook.StartNewEntryGRPCResponse, error) {
-	if request.GetPayload().CreatorId == "" {
+	if request.GetPayload().GetCreatorId() == "" {
 		return nil, status.Error(codes.InvalidArgument, "CreatorId is required")
+	}
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok != true {
+		s.Logger.Error("No metadata")
+		return nil, status.Error(codes.Unknown, "Error")
+	}
+
+	principal, err := getPrincipal(md)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, status.Error(codes.Unauthenticated, "Error")
+
 	}
 
 	input := &app.StartNewEntryInput{
 		Principal: &app.Principal{
 			Type: app.PrincipalUSER,
-			ID:   request.GetPrincipal().GetId(),
+			ID:   principal.GetId(),
 		},
-		CreatorID: request.GetPayload().CreatorId,
+		CreatorID: request.GetPayload().GetCreatorId(),
 	}
 
 	id, err := s.App.StartNewEntry(input)
@@ -177,4 +203,20 @@ func timeToProtoTime(time time.Time) *timestamp.Timestamp {
 	return &timestamp.Timestamp{
 		Seconds: seconds,
 	}
+}
+
+func getPrincipal(md metadata.MD) (*notebook.Principal, error) {
+	data, ok := md["principal-bin"]
+	if ok == false {
+		return nil, errors.New("principal key missing from metadata")
+	}
+
+	principal := &notebook.Principal{}
+	err := proto.Unmarshal([]byte(strings.Join(data, "")), principal)
+
+	if err != nil {
+		return nil, errors.New("Error unmarshalling principal")
+	}
+
+	return principal, nil
 }

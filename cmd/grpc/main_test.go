@@ -13,7 +13,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 )
 
 func makeApp() (*app.App, error) {
@@ -89,16 +91,25 @@ func TestCreateAndRead(t *testing.T) {
 	client := notebook.NewNotebookClient(conn)
 
 	startNewEntryRequest := &notebook.StartNewEntryGRPCRequest{
-		Principal: &notebook.Principal{
-			Id:   "1",
-			Type: notebook.Principal_USER,
-		},
 		Payload: &notebook.StartNewEntryGRPCRequest_Payload{
 			CreatorId: "1",
 		},
 	}
 
-	ctx := context.TODO()
+	principal := &notebook.Principal{
+		Type: notebook.Principal_USER,
+		Id:   "1",
+	}
+
+	data, err := proto.Marshal(principal)
+	if err != nil {
+		panic(err)
+	}
+
+	md := metadata.New(map[string]string{
+		"principal-bin": string(data),
+	})
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
 
 	startNewEntryResponse, err := client.StartNewEntry(ctx, startNewEntryRequest)
 
@@ -106,17 +117,13 @@ func TestCreateAndRead(t *testing.T) {
 	assert.NotEmpty(t, startNewEntryResponse.GetPayload().GetId())
 
 	readRequest := &notebook.ReadEntryGRPCRequest{
-		Principal: &notebook.Principal{
-			Id:   "1",
-			Type: notebook.Principal_USER,
-		},
 		Payload: &notebook.ReadEntryGRPCRequest_Payload{
 			Id: startNewEntryResponse.GetPayload().GetId(),
 		},
 	}
 
 	readResponse, err := client.ReadEntry(ctx, readRequest)
-	assert.Nil(t, err)
+	assert.Nil(t, err, status.Code(err))
 	assert.Equal(t, startNewEntryResponse.GetPayload().GetId(), readResponse.GetPayload().GetId())
 	assert.Equal(t, "", readResponse.GetPayload().GetText())
 	assert.Equal(t, "1", readResponse.GetPayload().GetCreatorId())
