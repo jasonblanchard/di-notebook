@@ -1,0 +1,6 @@
+apiVersion: getambassador.io/v1
+kind: Mapping
+metadata:
+  name: notebook-http
+spec:
+  service: notebook-http

@@ -20,3 +20,5 @@ configMapGenerator:
   literals:
   - backend=notebook-grpc-production:8080
 nameSuffix: -production
+patchesStrategicMerge:
+  - patch-mapping-service.yaml

@@ -8,6 +8,7 @@ resources:
 - service-grpc.yaml
 - service-http.yaml
 - post-sync-migrations.yaml
+- mapping.yaml
 commonLabels:
   app: notebook
 configMapGenerator:
