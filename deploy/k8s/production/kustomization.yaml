@@ -18,7 +18,7 @@ configMapGenerator:
   - GITHUB_TOKEN=vault:secret/data/di-notebook/production/app#GITHUB_TOKEN
 - name: notebook-http-config
   literals:
-  - backend=notebook-grpc-production:8080
+  - GRPC_BACKEND=notebook-grpc-production:8080
 nameSuffix: -production
 patchesStrategicMerge:
   - patch-mapping-service.yaml

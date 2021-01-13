@@ -25,6 +25,7 @@ ENV PATH="/app:${PATH}"
 
 COPY --from=build --chown=docker:docker ${BUILD_DIR}/build .
 COPY --from=build --chown=docker:docker ${BUILD_DIR}/cmd/http/config.yaml .
+COPY --from=build --chown=docker:docker ${BUILD_DIR}/cmd/http/notebook.swagger.json .
 COPY --chown=docker:docker migrations migrations
 
 # CMD ["./nats"]
