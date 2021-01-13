@@ -4,5 +4,5 @@ metadata:
   name: notebook-http
 spec:
   prefix: /notebook/
-  bypass_auth: true
+  # bypass_auth: true
   rewrite: '/'
