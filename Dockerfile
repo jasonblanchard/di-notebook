@@ -12,6 +12,7 @@ COPY . .
 RUN go build -o build/cli -v ./cmd/cli
 RUN go build -o build/nats -v ./cmd/nats
 RUN go build -o build/grpc -v ./cmd/grpc
+RUN go build -o build/grpc -v ./cmd/http
 
 FROM ubuntu AS run
 ARG BUILD_DIR

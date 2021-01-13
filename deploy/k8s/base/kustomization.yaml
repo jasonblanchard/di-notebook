@@ -4,7 +4,9 @@ resources:
 - sa.yaml
 - deployment-nats.yaml
 - deployment-grpc.yaml
+- deployment-http.yaml
 - service-grpc.yaml
+- service-http.yaml
 - post-sync-migrations.yaml
 commonLabels:
   app: notebook

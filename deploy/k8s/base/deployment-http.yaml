@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notebook-http
+spec:
+  selector:
+    matchLabels:
+      role: http
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        vault.security.banzaicloud.io/vault-addr: https://vault.vault:8200
+        vault.security.banzaicloud.io/vault-role: di-notebook
+        vault.security.banzaicloud.io/vault-skip-verify: "true"
+      labels:
+        role: http
+    spec:
+      serviceAccountName: notebook
+      containers:
+      - name: notebook
+        image: jasonblanchard/di-notebook:latest
+        command: ["./http"]
+        ports:
+          - containerPort: 80
+        envFrom:
+        - configMapRef:
+            name: notebook-http-config

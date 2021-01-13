@@ -16,4 +16,7 @@ configMapGenerator:
   - DB_PORT=5432
   - DATABASE=di_entry
   - GITHUB_TOKEN=vault:secret/data/di-notebook/production/app#GITHUB_TOKEN
+- name: notebook-http-config
+  literals:
+  - backend=notebook-grpc-production:8080
 nameSuffix: -production
