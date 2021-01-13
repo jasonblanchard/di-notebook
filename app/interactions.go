@@ -1,6 +1,8 @@
 package app
 
 import (
+	"fmt"
+
 	"github.com/jasonblanchard/di-notebook/store"
 	"github.com/pkg/errors"
 )
@@ -42,7 +44,7 @@ func (a *App) ReadEntry(i *ReadEntryInput) (*Entry, error) {
 	entry := storeGetEntryOutputToEntry(getEntryOutput)
 
 	if !canReadEntry(i.Principal, entry) {
-		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot read entry"}, "Unauthorized")
+		return nil, errors.Wrap(&UnauthorizedError{s: fmt.Sprintf("Principal %s cannot read entry %v by author %s", i.Principal.ID, entry.ID, entry.CreatorID)}, "Unauthorized")
 	}
 
 	return entry, nil
