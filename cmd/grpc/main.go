@@ -10,7 +10,8 @@ import (
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
-	"github.com/jasonblanchard/di-messages/packages/go/messages/notebook"
+
+	notebook "github.com/jasonblanchard/di-apis/gen/pb-go/notebook/v2"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
 )

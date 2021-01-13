@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/jasonblanchard/di-messages/packages/go/messages/notebook"
+	notebook "github.com/jasonblanchard/di-apis/gen/pb-go/notebook/v2"
 	"github.com/jasonblanchard/di-notebook/app"
 	"github.com/jasonblanchard/di-notebook/store/postgres"
 	"github.com/pkg/errors"

@@ -30,10 +30,13 @@ dbdrop:
 migration:
 	migrate create -ext sql -dir cmd/db/migrations -seq $$SEQ
 
-build:
+build: swagger
 	# pack build ${IMAGE_REPO} --builder ${BUILDER}
 	docker build -t ${IMAGE_REPO} .
 	docker tag ${IMAGE_REPO} ${VERSION_TAG}
+
+swagger:
+	wget https://raw.githubusercontent.com/jasonblanchard/di-apis/main/gen/pb-go/notebook.swagger.json -O cmd/http/notebook.swagger.json
 
 push: build
 	docker push ${LATEST_TAG}

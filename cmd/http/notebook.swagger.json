@@ -1,0 +1,221 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "notebook.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "Notebook"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v2/entries": {
+      "post": {
+        "operationId": "Notebook_StartNewEntry",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2StartNewEntryGRPCResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v2StartNewEntryGRPCRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Notebook"
+        ]
+      }
+    },
+    "/v2/entries/{payload.id}": {
+      "get": {
+        "operationId": "Notebook_ReadEntry",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2ReadEntryGRPCResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "payload.id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "principal.type",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "USER"
+            ],
+            "default": "USER"
+          },
+          {
+            "name": "principal.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Notebook"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v2Principal": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/v2PrincipalType"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "v2PrincipalType": {
+      "type": "string",
+      "enum": [
+        "USER"
+      ],
+      "default": "USER"
+    },
+    "v2ReadEntryGRPCRequestPayload": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "v2ReadEntryGRPCResponse": {
+      "type": "object",
+      "properties": {
+        "payload": {
+          "$ref": "#/definitions/v2ReadEntryGRPCResponsePayload"
+        }
+      }
+    },
+    "v2ReadEntryGRPCResponsePayload": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "creator_id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "v2StartNewEntryGRPCRequest": {
+      "type": "object",
+      "properties": {
+        "principal": {
+          "$ref": "#/definitions/v2Principal"
+        },
+        "payload": {
+          "$ref": "#/definitions/v2StartNewEntryGRPCRequestPayload"
+        }
+      }
+    },
+    "v2StartNewEntryGRPCRequestPayload": {
+      "type": "object",
+      "properties": {
+        "creator_id": {
+          "type": "string"
+        }
+      }
+    },
+    "v2StartNewEntryGRPCResponse": {
+      "type": "object",
+      "properties": {
+        "payload": {
+          "$ref": "#/definitions/v2StartNewEntryGRPCResponsePayload"
+        }
+      }
+    },
+    "v2StartNewEntryGRPCResponsePayload": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
