@@ -22,7 +22,7 @@ spec:
         image: jasonblanchard/di-notebook:latest
         command: ["./http"]
         ports:
-          - containerPort: 80
+          - containerPort: 8085
         envFrom:
         - configMapRef:
             name: notebook-http-config

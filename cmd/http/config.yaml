@@ -5,7 +5,7 @@ cors:
   allow-methods:
   allow-headers:
 proxy:
-  port: 80
+  port: 8085
   api-prefix: "/api"
 grpc:
   max-call-recv-msg-size: 0
