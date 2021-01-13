@@ -21,9 +21,9 @@ spec:
       - name: notebook
         image: jasonblanchard/di-notebook:latest
         command: 
-          - ./http
-          - --backend
-          - $GRPC_BACKEND
+          - /bin/sh
+          - -c
+          - "./http --backend $(echo $GRPC_BACKEND)"
         ports:
           - containerPort: 8085
         envFrom:
