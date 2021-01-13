@@ -23,7 +23,7 @@ spec:
         command: 
           - ./http
           - --backend
-          - "$(echo $GRPC_BACKEND)"
+          - $GRPC_BACKEND
         ports:
           - containerPort: 8085
         envFrom:

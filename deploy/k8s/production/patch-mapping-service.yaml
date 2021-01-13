@@ -3,4 +3,4 @@ kind: Mapping
 metadata:
   name: notebook-http
 spec:
-  service: notebook-http:8085
+  service: notebook-http-production:8085
