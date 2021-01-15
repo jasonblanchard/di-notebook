@@ -100,8 +100,22 @@ func (s *Service) handleError(p interface{}) error {
 
 // GetEntry implements GetEntry
 func (s *Service) GetEntry(ctx context.Context, request *notebook.GetEntryRequest) (*notebook.Entry, error) {
-	md, _ := metadata.FromIncomingContext(ctx)
+	md, ok := metadata.FromIncomingContext(ctx)
+
 	s.Logger.Info(fmt.Sprintf("metadata: %v", md))
+
+	if ok != true {
+		return nil, status.Error(codes.InvalidArgument, "Missing metadata")
+	}
+
+	bearer, _ := md["authorization"]
+	s.Logger.Info(fmt.Sprintf("bearer: %s", bearer))
+
+	principal, err := getPrincipal(md)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, status.Error(codes.Unauthenticated, "Error")
+	}
 
 	if request.GetId() == "" {
 		return nil, status.Error(codes.InvalidArgument, "Id is required")
@@ -116,7 +130,7 @@ func (s *Service) GetEntry(ctx context.Context, request *notebook.GetEntryReques
 	readEntryInput := &app.ReadEntryInput{
 		Principal: &app.Principal{
 			Type: app.PrincipalUSER,
-			ID:   "1", // TODO Fix
+			ID:   principal.GetId(),
 		},
 		ID: id,
 	}
@@ -177,4 +191,22 @@ func timeToProtoTime(time time.Time) *timestamp.Timestamp {
 	return &timestamp.Timestamp{
 		Seconds: seconds,
 	}
+}
+
+func getPrincipal(md metadata.MD) (*notebook.Principal, error) {
+	// data, ok := md["principal-bin"]
+	// if ok == false {
+	// 	return nil, errors.New("principal key missing from metadata")
+	// }
+
+	principal := &notebook.Principal{
+		Id: "1",
+	}
+	// err := proto.Unmarshal([]byte(strings.Join(data, "")), principal)
+
+	// if err != nil {
+	// 	return nil, errors.New("Error unmarshalling principal")
+	// }
+
+	return principal, nil
 }
