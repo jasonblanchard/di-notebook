@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
@@ -194,19 +195,20 @@ func timeToProtoTime(time time.Time) *timestamp.Timestamp {
 }
 
 func getPrincipal(md metadata.MD) (*notebook.Principal, error) {
-	// data, ok := md["principal-bin"]
-	// if ok == false {
-	// 	return nil, errors.New("principal key missing from metadata")
-	// }
+	bearer, ok := md["principal-bin"]
+	if ok == false {
+		return nil, errors.New("principal key missing from metadata")
+	}
+
+	id, err := bearerHeaderToID(strings.Join(bearer, ""))
+
+	if err != nil {
+		return nil, err
+	}
 
 	principal := &notebook.Principal{
-		Id: "1",
+		Id: id,
 	}
-	// err := proto.Unmarshal([]byte(strings.Join(data, "")), principal)
-
-	// if err != nil {
-	// 	return nil, errors.New("Error unmarshalling principal")
-	// }
 
 	return principal, nil
 }

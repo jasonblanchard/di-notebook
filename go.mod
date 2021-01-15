@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/Microsoft/go-winio v0.4.16 // indirect
 	github.com/containerd/containerd v1.4.3 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/docker/docker v20.10.2+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect

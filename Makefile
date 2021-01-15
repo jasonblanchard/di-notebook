@@ -44,3 +44,6 @@ swagger:
 push: build
 	docker push ${LATEST_TAG}
 	docker push ${VERSION_TAG}
+
+swap:
+	cd cmd/grpc && telepresence --swap-deployment notebook-grpc-production --namespace di-production --expose 8080 --run bash -c "go run . --config ./config/local.yaml"
