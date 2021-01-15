@@ -195,7 +195,7 @@ func timeToProtoTime(time time.Time) *timestamp.Timestamp {
 }
 
 func getPrincipal(md metadata.MD) (*notebook.Principal, error) {
-	bearer, ok := md["principal-bin"]
+	bearer, ok := md["authorization"]
 	if ok == false {
 		return nil, errors.New("principal key missing from metadata")
 	}
