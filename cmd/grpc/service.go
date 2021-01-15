@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -97,13 +98,16 @@ func (s *Service) handleError(p interface{}) error {
 	return status.Errorf(codes.Unknown, "panic triggered: %v", p)
 }
 
-// ReadEntry implements ReadEntry
-func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPCRequest) (*notebook.ReadEntryGRPCResponse, error) {
-	if request.GetPayload().GetId() == "" {
+// GetEntry implements GetEntry
+func (s *Service) GetEntry(ctx context.Context, request *notebook.GetEntryRequest) (*notebook.Entry, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	s.Logger.Debug(fmt.Sprintf("%v", md))
+
+	if request.GetId() == "" {
 		return nil, status.Error(codes.InvalidArgument, "Id is required")
 	}
 
-	id, err := strconv.Atoi(request.GetPayload().GetId())
+	id, err := strconv.Atoi(request.GetId())
 	if err != nil {
 		s.Logger.Error(err.Error())
 		return nil, status.Error(codes.NotFound, "Not found")
@@ -112,7 +116,7 @@ func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPC
 	readEntryInput := &app.ReadEntryInput{
 		Principal: &app.Principal{
 			Type: app.PrincipalUSER,
-			ID:   request.GetPrincipal().Id,
+			ID:   "1", // TODO Fix
 		},
 		ID: id,
 	}
@@ -123,33 +127,31 @@ func (s *Service) ReadEntry(ctx context.Context, request *notebook.ReadEntryGRPC
 		return nil, MapError(err)
 	}
 
-	response := &notebook.ReadEntryGRPCResponse{
-		Payload: &notebook.ReadEntryGRPCResponse_Payload{
-			Id:        fmt.Sprintf("%d", entry.ID),
-			CreatorId: entry.CreatorID,
-			Text:      entry.Text,
-			CreatedAt: timeToProtoTime(entry.CreatedAt),
-		},
+	response := &notebook.Entry{
+		Id:        fmt.Sprintf("%d", entry.ID),
+		CreatorId: entry.CreatorID,
+		Text:      entry.Text,
+		CreatedAt: timeToProtoTime(entry.CreatedAt),
 	}
 
 	if !entry.UpdatedAt.IsZero() {
-		response.Payload.UpdatedAt = timeToProtoTime(entry.UpdatedAt)
+		response.UpdatedAt = timeToProtoTime(entry.UpdatedAt)
 	}
 	return response, nil
 }
 
-// StartNewEntry implements StartNewEntry
-func (s *Service) StartNewEntry(ctx context.Context, request *notebook.StartNewEntryGRPCRequest) (*notebook.StartNewEntryGRPCResponse, error) {
-	if request.GetPayload().CreatorId == "" {
+// CreateEntry implements CreateEntry
+func (s *Service) CreateEntry(ctx context.Context, request *notebook.CreateEntryRequest) (*notebook.Entry, error) {
+	if request.Entry.GetCreatorId() == "" {
 		return nil, status.Error(codes.InvalidArgument, "CreatorId is required")
 	}
 
 	input := &app.StartNewEntryInput{
 		Principal: &app.Principal{
 			Type: app.PrincipalUSER,
-			ID:   request.GetPrincipal().GetId(),
+			ID:   "1", // TODO: Fix
 		},
-		CreatorID: request.GetPayload().CreatorId,
+		CreatorID: request.Entry.GetCreatorId(),
 	}
 
 	id, err := s.App.StartNewEntry(input)
@@ -158,10 +160,8 @@ func (s *Service) StartNewEntry(ctx context.Context, request *notebook.StartNewE
 		return nil, MapError(err)
 	}
 
-	response := &notebook.StartNewEntryGRPCResponse{
-		Payload: &notebook.StartNewEntryGRPCResponse_Payload{
-			Id: fmt.Sprintf("%d", id),
-		},
+	response := &notebook.Entry{
+		Id: fmt.Sprintf("%d", id),
 	}
 
 	return response, nil
