@@ -103,14 +103,9 @@ func (s *Service) handleError(p interface{}) error {
 func (s *Service) GetEntry(ctx context.Context, request *notebook.GetEntryRequest) (*notebook.Entry, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 
-	s.Logger.Info(fmt.Sprintf("metadata: %v", md))
-
 	if ok != true {
 		return nil, status.Error(codes.InvalidArgument, "Missing metadata")
 	}
-
-	bearer, _ := md["authorization"]
-	s.Logger.Info(fmt.Sprintf("bearer: %s", bearer))
 
 	principal, err := getPrincipal(md)
 	if err != nil {
@@ -161,10 +156,22 @@ func (s *Service) CreateEntry(ctx context.Context, request *notebook.CreateEntry
 		return nil, status.Error(codes.InvalidArgument, "CreatorId is required")
 	}
 
+	md, ok := metadata.FromIncomingContext(ctx)
+
+	if ok != true {
+		return nil, status.Error(codes.InvalidArgument, "Missing metadata")
+	}
+
+	principal, err := getPrincipal(md)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, status.Error(codes.Unauthenticated, "Error")
+	}
+
 	input := &app.StartNewEntryInput{
 		Principal: &app.Principal{
 			Type: app.PrincipalUSER,
-			ID:   "1", // TODO: Fix
+			ID:   principal.GetId(),
 		},
 		CreatorID: request.Entry.GetCreatorId(),
 	}
