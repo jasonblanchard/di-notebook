@@ -101,7 +101,7 @@ func (s *Service) handleError(p interface{}) error {
 // GetEntry implements GetEntry
 func (s *Service) GetEntry(ctx context.Context, request *notebook.GetEntryRequest) (*notebook.Entry, error) {
 	md, _ := metadata.FromIncomingContext(ctx)
-	s.Logger.Debug(fmt.Sprintf("%v", md))
+	s.Logger.Info(fmt.Sprintf("metadata: %v", md))
 
 	if request.GetId() == "" {
 		return nil, status.Error(codes.InvalidArgument, "Id is required")
