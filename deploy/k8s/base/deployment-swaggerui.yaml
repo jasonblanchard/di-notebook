@@ -24,4 +24,4 @@ spec:
           - containerPort: 8080
         env:
         - name: SWAGGER_JSON_URL
-          value: "notebook-http-prod:8085/swagger.json"
+          value: "/notebook/swagger.json"
