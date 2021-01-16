@@ -152,10 +152,6 @@ func (s *Service) GetEntry(ctx context.Context, request *notebook.GetEntryReques
 
 // CreateEntry implements CreateEntry
 func (s *Service) CreateEntry(ctx context.Context, request *notebook.CreateEntryRequest) (*notebook.Entry, error) {
-	if request.Entry.GetCreatorId() == "" {
-		return nil, status.Error(codes.InvalidArgument, "CreatorId is required")
-	}
-
 	md, ok := metadata.FromIncomingContext(ctx)
 
 	if ok != true {
@@ -173,7 +169,8 @@ func (s *Service) CreateEntry(ctx context.Context, request *notebook.CreateEntry
 			Type: app.PrincipalUSER,
 			ID:   principal.GetId(),
 		},
-		CreatorID: request.Entry.GetCreatorId(),
+		CreatorID: principal.GetId(),
+		Text:      request.GetEntry().GetText(),
 	}
 
 	id, err := s.App.StartNewEntry(input)
@@ -187,6 +184,11 @@ func (s *Service) CreateEntry(ctx context.Context, request *notebook.CreateEntry
 	}
 
 	return response, nil
+}
+
+// ListEntries implements ListEntries
+func (s *Service) ListEntries(ctx context.Context, request *notebook.ListEntryRequest) (*notebook.ListEntriesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "TODO")
 }
 
 func timeToProtoTime(time time.Time) *timestamp.Timestamp {
