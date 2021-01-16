@@ -1,0 +1,6 @@
+apiVersion: getambassador.io/v1
+kind: Mapping
+metadata:
+  name: notebook-swaggerui
+spec:
+  service: notebook-swaggerui-production:8080

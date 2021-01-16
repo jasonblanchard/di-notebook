@@ -1,0 +1,8 @@
+apiVersion: getambassador.io/v1
+kind: Mapping
+metadata:
+  name: notebook-swaggerui
+spec:
+  prefix: /swagger/notebook/
+  # bypass_auth: true
+  rewrite: '/'

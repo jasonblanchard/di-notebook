@@ -21,4 +21,5 @@ configMapGenerator:
   - GRPC_BACKEND=notebook-grpc-production:8080
 nameSuffix: -production
 patchesStrategicMerge:
-  - patch-mapping-service.yaml
+  - patch-http-mapping.yaml
+  - patch-swaggerui-mapping.yaml

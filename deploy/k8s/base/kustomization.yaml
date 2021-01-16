@@ -8,7 +8,10 @@ resources:
 - service-grpc.yaml
 - service-http.yaml
 - post-sync-migrations.yaml
-- mapping.yaml
+- http-mapping.yaml
+- deployment-swaggerui.yaml
+- service-swaggerui.yaml
+- swaggerui-mapping.yaml
 commonLabels:
   app: notebook
 configMapGenerator:
