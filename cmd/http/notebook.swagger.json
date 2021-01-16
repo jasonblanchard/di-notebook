@@ -16,7 +16,42 @@
     "application/json"
   ],
   "paths": {
-    "/v2/entries": {
+    "/notebook/v2/entries": {
+      "get": {
+        "operationId": "Notebook_ListEntries",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2ListEntriesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Notebook"
+        ]
+      },
       "post": {
         "operationId": "Notebook_CreateEntry",
         "responses": {
@@ -48,7 +83,7 @@
         ]
       }
     },
-    "/v2/entries/{id}": {
+    "/notebook/v2/entries/{id}": {
       "get": {
         "operationId": "Notebook_GetEntry",
         "responses": {
@@ -71,6 +106,70 @@
             "in": "path",
             "required": true,
             "type": "string"
+          }
+        ],
+        "tags": [
+          "Notebook"
+        ]
+      },
+      "delete": {
+        "operationId": "Notebook_DeleteEntry",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Notebook"
+        ]
+      },
+      "patch": {
+        "operationId": "Notebook_UpdateEntry",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2Entry"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v2Entry"
+            }
           }
         ],
         "tags": [
@@ -122,7 +221,9 @@
           "type": "string"
         },
         "creator_id": {
-          "type": "string"
+          "type": "string",
+          "description": "Output only.",
+          "readOnly": true
         },
         "created_at": {
           "type": "string",
@@ -135,6 +236,27 @@
           "format": "date-time",
           "description": "Output only.",
           "readOnly": true
+        }
+      }
+    },
+    "v2ListEntriesResponse": {
+      "type": "object",
+      "properties": {
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v2Entry"
+          }
+        },
+        "next_page_token": {
+          "type": "string"
+        },
+        "total_size": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "has_next_page": {
+          "type": "boolean"
         }
       }
     }
