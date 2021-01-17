@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	notebook "github.com/jasonblanchard/di-apis/gen/pb-go/notebook/v2"
 	"github.com/jasonblanchard/di-notebook/app"
@@ -180,7 +181,8 @@ func (s *Service) CreateEntry(ctx context.Context, request *notebook.CreateEntry
 	}
 
 	response := &notebook.Entry{
-		Id: fmt.Sprintf("%d", id),
+		Id:   fmt.Sprintf("%d", id),
+		Text: request.GetEntry().GetText(),
 	}
 
 	return response, nil
@@ -189,6 +191,51 @@ func (s *Service) CreateEntry(ctx context.Context, request *notebook.CreateEntry
 // ListEntries implements ListEntries
 func (s *Service) ListEntries(ctx context.Context, request *notebook.ListEntryRequest) (*notebook.ListEntriesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "TODO")
+}
+
+// UpdateEntry implements UpdateEntry
+func (s *Service) UpdateEntry(ctx context.Context, request *notebook.UpdateEntryRequest) (*notebook.Entry, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+
+	if ok != true {
+		return nil, status.Error(codes.InvalidArgument, "Missing metadata")
+	}
+
+	principal, err := getPrincipal(md)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, status.Error(codes.Unauthenticated, "Error")
+	}
+
+	input := &app.ChangeEntryInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   principal.GetId(),
+		},
+		Text: request.GetEntry().GetText(),
+	}
+
+	entry, err := s.App.ChangeEntry(input)
+
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, MapError(err)
+	}
+
+	response := &notebook.Entry{
+		Id:        fmt.Sprintf("%d", entry.ID),
+		CreatorId: entry.CreatorID,
+		Text:      entry.Text,
+		CreatedAt: timeToProtoTime(entry.CreatedAt),
+		UpdatedAt: timeToProtoTime(entry.UpdatedAt),
+	}
+
+	return response, nil
+}
+
+// DeleteEntry implements DeleteEntry
+func (s *Service) DeleteEntry(ctx context.Context, request *notebook.DeleteEntryRequest) (*empty.Empty, error) {
+	return &empty.Empty{}, status.Error(codes.Unimplemented, "TODO")
 }
 
 func timeToProtoTime(time time.Time) *timestamp.Timestamp {
