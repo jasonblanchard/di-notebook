@@ -147,16 +147,16 @@ func (a *App) ListEntries(i *ListEntriesInput) (*ListEntriesOutput, error) {
 		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot list entries"}, "Unauthorized")
 	}
 
-	after := i.After
+	first := i.First
 
-	if after == 0 {
-		after = defaultListEntryPageSize
+	if first == 0 {
+		first = defaultListEntryPageSize
 	}
 
 	input := &store.ListEntriesInput{
 		CreatorID: i.CreatorID,
-		First:     i.First,
-		After:     after,
+		First:     first,
+		After:     i.After,
 	}
 
 	listEntriesOutput, err := a.StoreReader.ListEntries(input)
