@@ -190,40 +190,61 @@ func (s *Service) CreateEntry(ctx context.Context, request *notebook.CreateEntry
 
 // ListEntries implements ListEntries
 func (s *Service) ListEntries(ctx context.Context, request *notebook.ListEntryRequest) (*notebook.ListEntriesResponse, error) {
-	// md, ok := metadata.FromIncomingContext(ctx)
+	md, ok := metadata.FromIncomingContext(ctx)
 
-	// if ok != true {
-	// 	return nil, status.Error(codes.InvalidArgument, "Missing metadata")
-	// }
+	if ok != true {
+		return nil, status.Error(codes.InvalidArgument, "Missing metadata")
+	}
 
-	// principal, err := getPrincipal(md)
-	// if err != nil {
-	// 	s.Logger.Error(err.Error())
-	// 	return nil, status.Error(codes.Unauthenticated, "Error")
-	// }
+	principal, err := getPrincipal(md)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, status.Error(codes.Unauthenticated, "Error")
+	}
 
-	// after, err := strconv.Atoi(request.GetPageToken())
-	// if err != nil {
-	// 	s.Logger.Error(err.Error())
-	// 	return nil, status.Error(codes.Unknown, "Error")
-	// }
+	after, err := strconv.Atoi(request.GetPageToken())
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, status.Error(codes.Unknown, "Error")
+	}
 
-	// input := &app.ListEntriesInput{
-	// 	Principal: &app.Principal{
-	// 		Type: app.PrincipalUSER,
-	// 		ID:   principal.GetId(),
-	// 	},
-	// 	First: int(request.GetPageSize()),
-	// 	After: after, // TODO: Consider a proper opaque token for this, like base64'd id
-	// }
+	input := &app.ListEntriesInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   principal.GetId(),
+		},
+		First: int(request.GetPageSize()),
+		After: after, // TODO: Consider a proper opaque token for this, like base64'd id
+	}
 
-	// entries, err := s.App.ListEntries(input)
-	// if err != nil {
-	// 	s.Logger.Error(err.Error())
-	// 	return nil, MapError(err)
-	// }
+	output, err := s.App.ListEntries(input)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, MapError(err)
+	}
 
-	return nil, status.Error(codes.Unimplemented, "TODO")
+	response := &notebook.ListEntriesResponse{
+		NextPageToken: fmt.Sprintf("%d", output.Pagination.EndCursor),
+		TotalSize:     int32(output.Pagination.TotalCount),
+		HasNextPage:   output.Pagination.HasNextPage,
+	}
+
+	for _, entry := range output.Entries {
+		responseEntry := &notebook.Entry{
+			Id:        fmt.Sprintf("%d", entry.ID),
+			Text:      entry.Text,
+			CreatorId: entry.CreatorID,
+			CreatedAt: timeToProtoTime(entry.CreatedAt),
+		}
+
+		if !entry.UpdatedAt.IsZero() {
+			responseEntry.UpdatedAt = timeToProtoTime(entry.UpdatedAt)
+		}
+
+		response.Entries = append(response.Entries, responseEntry)
+	}
+
+	return response, nil
 }
 
 // UpdateEntry implements UpdateEntry
