@@ -9,6 +9,7 @@
       "name": "Notebook"
     }
   ],
+  "basePath": "/notebook",
   "consumes": [
     "application/json"
   ],
@@ -16,7 +17,7 @@
     "application/json"
   ],
   "paths": {
-    "/notebook/v2/entries": {
+    "/v2/entries": {
       "get": {
         "operationId": "Notebook_ListEntries",
         "responses": {
@@ -93,7 +94,7 @@
         ]
       }
     },
-    "/notebook/v2/entries/{id}": {
+    "/v2/entries/{id}": {
       "get": {
         "operationId": "Notebook_GetEntry",
         "responses": {
