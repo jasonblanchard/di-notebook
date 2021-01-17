@@ -207,11 +207,18 @@ func (s *Service) UpdateEntry(ctx context.Context, request *notebook.UpdateEntry
 		return nil, status.Error(codes.Unauthenticated, "Error")
 	}
 
+	id, err := strconv.Atoi(request.GetId())
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, status.Error(codes.Unknown, "Error")
+	}
+
 	input := &app.ChangeEntryInput{
 		Principal: &app.Principal{
 			Type: app.PrincipalUSER,
 			ID:   principal.GetId(),
 		},
+		ID:   id,
 		Text: request.GetEntry().GetText(),
 	}
 
