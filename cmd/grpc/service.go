@@ -242,6 +242,39 @@ func (s *Service) UpdateEntry(ctx context.Context, request *notebook.UpdateEntry
 
 // DeleteEntry implements DeleteEntry
 func (s *Service) DeleteEntry(ctx context.Context, request *notebook.DeleteEntryRequest) (*empty.Empty, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+
+	if ok != true {
+		return nil, status.Error(codes.InvalidArgument, "Missing metadata")
+	}
+
+	principal, err := getPrincipal(md)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, status.Error(codes.Unauthenticated, "Error")
+	}
+
+	id, err := strconv.Atoi(request.GetId())
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, status.Error(codes.Unknown, "Error")
+	}
+
+	input := &app.DiscardEntryInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   principal.GetId(),
+		},
+		ID: id,
+	}
+
+	err = s.App.DiscardEntry(input)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, MapError(err)
+	}
+
+	// TODO: Consider changing this signature to return the modified object
 	return &empty.Empty{}, status.Error(codes.Unimplemented, "TODO")
 }
 
