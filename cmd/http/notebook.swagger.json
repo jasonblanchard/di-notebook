@@ -50,6 +50,11 @@
         ],
         "tags": [
           "Notebook"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
         ]
       },
       "post": {
@@ -80,6 +85,11 @@
         ],
         "tags": [
           "Notebook"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
         ]
       }
     },
@@ -110,6 +120,11 @@
         ],
         "tags": [
           "Notebook"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
         ]
       },
       "delete": {
@@ -138,6 +153,11 @@
         ],
         "tags": [
           "Notebook"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
         ]
       },
       "patch": {
@@ -174,6 +194,11 @@
         ],
         "tags": [
           "Notebook"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
         ]
       }
     }
@@ -259,6 +284,13 @@
           "type": "boolean"
         }
       }
+    }
+  },
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
     }
   }
 }
