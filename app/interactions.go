@@ -7,6 +7,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+const defaultListEntryPageSize int = 50
+
 // StartNewEntryInput input for StartNewEntry
 type StartNewEntryInput struct {
 	Principal *Principal
@@ -145,10 +147,16 @@ func (a *App) ListEntries(i *ListEntriesInput) (*ListEntriesOutput, error) {
 		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot list entries"}, "Unauthorized")
 	}
 
+	after := i.After
+
+	if after == 0 {
+		after = defaultListEntryPageSize
+	}
+
 	input := &store.ListEntriesInput{
 		CreatorID: i.CreatorID,
 		First:     i.First,
-		After:     i.After,
+		After:     after,
 	}
 
 	listEntriesOutput, err := a.StoreReader.ListEntries(input)
