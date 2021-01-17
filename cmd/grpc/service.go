@@ -202,6 +202,7 @@ func (s *Service) ListEntries(ctx context.Context, request *notebook.ListEntryRe
 		return nil, status.Error(codes.Unauthenticated, "Error")
 	}
 
+	// TODO: Handle case where this is not provided
 	after, err := strconv.Atoi(request.GetPageToken())
 	if err != nil {
 		s.Logger.Error(err.Error())
@@ -213,8 +214,9 @@ func (s *Service) ListEntries(ctx context.Context, request *notebook.ListEntryRe
 			Type: app.PrincipalUSER,
 			ID:   principal.GetId(),
 		},
-		First: int(request.GetPageSize()),
-		After: after, // TODO: Consider a proper opaque token for this, like base64'd id
+		CreatorID: principal.GetId(),
+		First:     int(request.GetPageSize()),
+		After:     after, // TODO: Consider a proper opaque token for this, like base64'd id
 	}
 
 	output, err := s.App.ListEntries(input)
