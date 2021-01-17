@@ -190,6 +190,39 @@ func (s *Service) CreateEntry(ctx context.Context, request *notebook.CreateEntry
 
 // ListEntries implements ListEntries
 func (s *Service) ListEntries(ctx context.Context, request *notebook.ListEntryRequest) (*notebook.ListEntriesResponse, error) {
+	// md, ok := metadata.FromIncomingContext(ctx)
+
+	// if ok != true {
+	// 	return nil, status.Error(codes.InvalidArgument, "Missing metadata")
+	// }
+
+	// principal, err := getPrincipal(md)
+	// if err != nil {
+	// 	s.Logger.Error(err.Error())
+	// 	return nil, status.Error(codes.Unauthenticated, "Error")
+	// }
+
+	// after, err := strconv.Atoi(request.GetPageToken())
+	// if err != nil {
+	// 	s.Logger.Error(err.Error())
+	// 	return nil, status.Error(codes.Unknown, "Error")
+	// }
+
+	// input := &app.ListEntriesInput{
+	// 	Principal: &app.Principal{
+	// 		Type: app.PrincipalUSER,
+	// 		ID:   principal.GetId(),
+	// 	},
+	// 	First: int(request.GetPageSize()),
+	// 	After: after, // TODO: Consider a proper opaque token for this, like base64'd id
+	// }
+
+	// entries, err := s.App.ListEntries(input)
+	// if err != nil {
+	// 	s.Logger.Error(err.Error())
+	// 	return nil, MapError(err)
+	// }
+
 	return nil, status.Error(codes.Unimplemented, "TODO")
 }
 
@@ -275,7 +308,7 @@ func (s *Service) DeleteEntry(ctx context.Context, request *notebook.DeleteEntry
 	}
 
 	// TODO: Consider changing this signature to return the modified object
-	return &empty.Empty{}, status.Error(codes.Unimplemented, "TODO")
+	return &empty.Empty{}, nil
 }
 
 func timeToProtoTime(time time.Time) *timestamp.Timestamp {
