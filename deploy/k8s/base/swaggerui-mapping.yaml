@@ -4,5 +4,5 @@ metadata:
   name: notebook-swaggerui
 spec:
   prefix: /swagger/notebook/
-  # bypass_auth: true
+  bypass_auth: true
   rewrite: '/'
