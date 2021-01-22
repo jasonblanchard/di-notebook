@@ -10,7 +10,6 @@ RUN go mod download
 
 COPY . .
 RUN go build -o build/cli -v ./cmd/cli
-RUN go build -o build/nats -v ./cmd/nats
 RUN go build -o build/grpc -v ./cmd/grpc
 RUN go build -o build/http -v ./cmd/http
 
@@ -27,6 +26,4 @@ COPY --from=build --chown=docker:docker ${BUILD_DIR}/build .
 COPY --from=build --chown=docker:docker ${BUILD_DIR}/cmd/http/config.yaml .
 # TODO: Figure out how/when to get this by tag
 COPY --from=build --chown=docker:docker ${BUILD_DIR}/cmd/http/notebook.swagger.json .
-COPY --chown=docker:docker migrations migrations
-
-# CMD ["./nats"]
+COPY --chown=docker:docker migrations migrations/
