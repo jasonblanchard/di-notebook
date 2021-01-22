@@ -107,6 +107,9 @@ func (s *Service) handleUpdateEntry(c *natsby.Context) {
 	}
 
 	entry, err := s.ChangeEntry(changeEntryInput, func(entry *app.Entry) {
+		if c.NatsConnection == nil {
+			return
+		}
 		infoEntryUpdatedPayload, err := protobufmapper.ChangeEntryOutputToInfoEntryUpdated(entry)
 		if err != nil {
 			c.Err = errors.Wrap(err, "Error mapping info")

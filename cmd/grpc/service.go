@@ -12,6 +12,7 @@ import (
 	notebook "github.com/jasonblanchard/di-apis/gen/pb-go/notebook/v2"
 	"github.com/jasonblanchard/di-notebook/app"
 	"github.com/jasonblanchard/di-notebook/store/postgres"
+	"github.com/nats-io/nats.go"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -24,8 +25,9 @@ import (
 type Service struct {
 	*app.App
 	notebook.UnimplementedNotebookServer
-	Logger *zap.Logger
-	Port   string
+	Logger         *zap.Logger
+	Port           string
+	NatsConnection *nats.Conn
 }
 
 func initConfig(cfgFile string) error {
@@ -46,6 +48,7 @@ func NewService() (*Service, error) {
 	dbPort := viper.GetString("DB_PORT")
 	database := viper.GetString("DATABASE")
 	pretty := viper.GetBool("PRETTY")
+	natsURL := viper.GetString("NATS_URL")
 	port := viper.GetString("PORT")
 
 	s := &Service{}
@@ -70,6 +73,14 @@ func NewService() (*Service, error) {
 
 	writer := &postgres.Writer{
 		Db: db,
+	}
+
+	if natsURL != "" {
+		nc, err := nats.Connect(natsURL)
+		if err != nil {
+			return nil, errors.Wrap(err, "NATS initialization failed")
+		}
+		s.NatsConnection = nc
 	}
 
 	s.App = &app.App{
@@ -283,7 +294,14 @@ func (s *Service) UpdateEntry(ctx context.Context, request *notebook.UpdateEntry
 		Text: request.GetEntry().GetText(),
 	}
 
-	entry, err := s.App.ChangeEntry(input)
+	entry, err := s.App.ChangeEntry(input, func(entry *app.Entry) {
+		infoEntryUpdatedPayload, err := ChangeEntryOutputToInfoEntryUpdated(entry)
+		if err != nil {
+			s.Logger.Error(err.Error())
+			return
+		}
+		s.NatsConnection.Publish("info.entry.updated", infoEntryUpdatedPayload)
+	})
 
 	if err != nil {
 		s.Logger.Error(err.Error())
