@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/jasonblanchard/di-notebook/store"
 	"github.com/pkg/errors"
@@ -99,24 +100,31 @@ type DiscardEntryInput struct {
 }
 
 // DiscardEntry marks entry as deleted
-func (a *App) DiscardEntry(i *DiscardEntryInput) error {
+func (a *App) DiscardEntry(i *DiscardEntryInput, callbacks ...callback) (*Entry, error) {
 	getEntryOutput, err := a.StoreReader.GetEntry(i.ID)
 	if err != nil {
-		return errors.Wrap(err, "Error getting entry")
+		return nil, errors.Wrap(err, "Error getting entry")
 	}
 
 	entry := storeGetEntryOutputToEntry(getEntryOutput)
 
 	if !canDiscardEntry(i.Principal, entry) {
-		return errors.Wrap(&UnauthorizedError{s: "Principal cannot read entry"}, "Unauthorized")
+		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot read entry"}, "Unauthorized")
 	}
 
 	err = a.StoreWriter.DeleteEntry(i.ID)
 	if err != nil {
-		return errors.Wrap(err, "Delete entry failed")
+		return nil, errors.Wrap(err, "Delete entry failed")
 	}
 
-	return nil
+	// TODO: Write this to the database
+	entry.DeleteTime = time.Now()
+
+	for _, f := range callbacks {
+		f(entry)
+	}
+
+	return entry, nil
 }
 
 // ListEntriesInput input for ListEntries

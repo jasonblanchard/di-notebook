@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	notebook "github.com/jasonblanchard/di-apis/gen/pb-go/notebook/v2"
 	"github.com/jasonblanchard/di-notebook/app"
@@ -295,12 +294,12 @@ func (s *Service) UpdateEntry(ctx context.Context, request *notebook.UpdateEntry
 	}
 
 	entry, err := s.App.ChangeEntry(input, func(entry *app.Entry) {
-		infoEntryUpdatedPayload, err := ChangeEntryOutputToInfoEntryUpdated(entry)
+		revision, err := EntryToEntryRevision(entry, principal)
 		if err != nil {
 			s.Logger.Error(err.Error())
 			return
 		}
-		s.NatsConnection.Publish("info.entry.updated", infoEntryUpdatedPayload)
+		s.NatsConnection.Publish("data.mesh.notebook.v2.EntryRevision", revision)
 	})
 
 	if err != nil {
@@ -320,7 +319,7 @@ func (s *Service) UpdateEntry(ctx context.Context, request *notebook.UpdateEntry
 }
 
 // DeleteEntry implements DeleteEntry
-func (s *Service) DeleteEntry(ctx context.Context, request *notebook.DeleteEntryRequest) (*empty.Empty, error) {
+func (s *Service) DeleteEntry(ctx context.Context, request *notebook.DeleteEntryRequest) (*notebook.DeleteEntryResponse, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 
 	if ok != true {
@@ -347,14 +346,31 @@ func (s *Service) DeleteEntry(ctx context.Context, request *notebook.DeleteEntry
 		ID: id,
 	}
 
-	err = s.App.DiscardEntry(input)
+	entry, err := s.App.DiscardEntry(input, func(entry *app.Entry) {
+		revision, err := EntryToEntryRevision(entry, principal)
+		if err != nil {
+			s.Logger.Error(err.Error())
+			return
+		}
+		s.NatsConnection.Publish("data.mesh.notebook.v2.EntryRevision", revision)
+	})
 	if err != nil {
 		s.Logger.Error(err.Error())
 		return nil, MapError(err)
 	}
 
-	// TODO: Consider changing this signature to return the modified object
-	return &empty.Empty{}, nil
+	response := &notebook.DeleteEntryResponse{
+		Entry: &notebook.Entry{
+			Id:         fmt.Sprintf("%d", entry.ID),
+			CreatorId:  entry.CreatorID,
+			Text:       entry.Text,
+			CreatedAt:  timeToProtoTime(entry.CreatedAt),
+			UpdatedAt:  timeToProtoTime(entry.UpdatedAt),
+			DeleteTime: timeToProtoTime(entry.DeleteTime),
+		},
+	}
+
+	return response, nil
 }
 
 func timeToProtoTime(time time.Time) *timestamp.Timestamp {

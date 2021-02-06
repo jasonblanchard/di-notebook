@@ -19,9 +19,10 @@ type Principal struct {
 
 // Entry - text entry
 type Entry struct {
-	ID        int
-	Text      string
-	CreatorID string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID         int
+	Text       string
+	CreatorID  string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DeleteTime time.Time
 }

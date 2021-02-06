@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"testing"
 
@@ -69,7 +70,7 @@ func TestReadEntryNotFound(t *testing.T) {
 	_, err = client.ReadEntry(ctx, request)
 
 	status, _ := status.FromError(err)
-	assert.Equal(t, status.Code(), codes.NotFound)
+	assert.Equal(t, status.Code(), codes.NotFound, fmt.Sprintf("%s", status.Message()))
 }
 
 func TestCreateAndRead(t *testing.T) {

@@ -139,7 +139,7 @@ func (s *Service) handleDeleteEntry(c *natsby.Context) {
 		return
 	}
 
-	err = s.DiscardEntry(deleteEntryInput)
+	_, err = s.DiscardEntry(deleteEntryInput)
 	if err != nil {
 		c.Err = errors.Wrap(err, "Error discarding entry")
 		return

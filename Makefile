@@ -28,7 +28,8 @@ dbdrop:
 	docker run -v $(shell pwd):/di --network host -it migrate/migrate -source file://di/migrations -database postgres://di:di@localhost:5432/di_notebook?sslmode=disable drop
 
 migration:
-	migrate create -ext sql -dir cmd/db/migrations -seq $$SEQ
+	# migrate create -ext sql -dir cmd/db/migrations -seq $$SEQ
+	docker run -v $(shell pwd):/di --network host -it migrate/migrate -source file://di/migrations create -ext sql -dir /di/migrations -seq $(NAME)
 
 build: swagger
 	# pack build ${IMAGE_REPO} --builder ${BUILDER}
