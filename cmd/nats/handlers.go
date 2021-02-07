@@ -15,7 +15,9 @@ func (s *Service) handleDebug(c *natsby.Context) {
 		return
 	}
 	s.Logger.Info().Msg(fmt.Sprintf("%v", revision))
-	m := jsonpb.Marshaler{}
+	m := jsonpb.Marshaler{
+		EmitDefaults: true,
+	}
 	jsonStr, err := m.MarshalToString(revision)
 	s.Logger.Info().Msg(jsonStr)
 }
