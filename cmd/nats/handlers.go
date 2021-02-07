@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/golang/protobuf/jsonpb"
 	"github.com/jasonblanchard/natsby"
 )
 
@@ -14,6 +15,9 @@ func (s *Service) handleDebug(c *natsby.Context) {
 		return
 	}
 	s.Logger.Info().Msg(fmt.Sprintf("%v", revision))
+	m := jsonpb.Marshaler{}
+	jsonStr, err := m.MarshalToString(revision)
+	s.Logger.Info().Msg(jsonStr)
 }
 
 func errorHandler(s *Service) natsby.RecoveryFunc {
