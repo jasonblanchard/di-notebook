@@ -4,6 +4,7 @@ resources:
 - sa.yaml
 - deployment-grpc.yaml
 - deployment-http.yaml
+- deployment-nats.yaml
 - service-grpc.yaml
 - service-http.yaml
 - post-sync-migrations.yaml

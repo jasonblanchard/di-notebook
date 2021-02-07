@@ -106,12 +106,7 @@ func (s *Service) Run() error {
 	engine.Use(natsby.WithCustomRecovery(errorHandler(s)))
 	engine.Use(natsby.WithLogger(s.Logger))
 
-	engine.Subscribe("create.entry", natsby.WithByteReply(), s.handleCreateEntry)
-	engine.Subscribe("get.entry", natsby.WithByteReply(), s.handleGetEntry)
-	engine.Subscribe("notebook.ReadEntry", natsby.WithByteReply(), s.handleReadEntry)
-	engine.Subscribe("delete.entry", natsby.WithByteReply(), s.handleDeleteEntry)
-	engine.Subscribe("update.entry", natsby.WithByteReply(), s.handleUpdateEntry)
-	engine.Subscribe("list.entry", natsby.WithByteReply(), s.handleListEntries)
+	engine.Subscribe("data.mesh.notebook.v2.EntryRevision", s.handleDebug)
 
 	engine.Run(func() {
 		s.Logger.Info().Msg("Ready to receive messages")
