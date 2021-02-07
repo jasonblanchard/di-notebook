@@ -1,0 +1,2 @@
+ALTER TABLE entries
+ADD COLUMN is_deleted BOOLEAN;
