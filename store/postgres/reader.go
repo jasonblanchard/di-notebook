@@ -18,7 +18,7 @@ func (r *Reader) GetEntry(id int) (*store.GetEntryOutput, error) {
 SELECT id, text, creator_id, created_at, updated_at
 FROM entries
 WHERE id = $1
-AND is_deleted = false
+AND delete_time IS NULL
 `, id)
 
 	output := &store.GetEntryOutput{}
@@ -44,7 +44,7 @@ func (r *Reader) ListEntries(i *store.ListEntriesInput) (*store.ListEntriesOutpu
 SELECT id, text, creator_id, created_at, updated_at
 FROM entries
 WHERE creator_id = $1
-AND is_deleted = false
+AND delete_time IS NULL
 ORDER BY created_at DESC
 LIMIT $2
 		`, i.CreatorID, i.First)
@@ -58,7 +58,7 @@ LIMIT $2
 SELECT id, text, creator_id, created_at, updated_at
 FROM entries
 WHERE creator_id = $1
-AND is_deleted = false
+AND delete_time IS NULL
 AND created_at < (
 	SELECT created_at
 	FROM entries
@@ -93,7 +93,7 @@ func (r *Reader) GetEntriesPaginationInfo(i *store.GetPaginationInfoInput) (*sto
 SELECT COUNT(*)
 FROM entries
 WHERE creator_id = $1
-AND is_deleted = false
+AND delete_time IS NULL
 	`, i.CreatorID)
 
 	var totalCount int
@@ -108,7 +108,7 @@ FROM (
 	SELECT
 	FROM entries
 	WHERE creator_id = $1
-	AND is_deleted = false
+	AND delete_time IS NULL
 	AND created_at < (
 		SELECT created_at
 		FROM entries

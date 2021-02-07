@@ -49,7 +49,7 @@ func (w *Writer) UpdateEntry(i *store.UpdateEntryInput) (*store.UpdateEntryOutpu
 UPDATE entries
 SET text = $1, updated_at = $2
 WHERE id = $3
-AND is_deleted = false
+AND delete_time is null
 RETURNING id, text, creator_id, created_at, updated_at
 `, i.Text, now, i.ID)
 
@@ -68,8 +68,7 @@ func (w *Writer) DeleteEntry(id int) (*store.DeleteEntryOutput, error) {
 
 	row := w.Db.QueryRow(`
 UPDATE entries
-SET is_deleted = TRUE,
-delete_time = $1
+SET delete_time = $1
 WHERE id = $2
 RETURNING id, text, creator_id, created_at, updated_at, delete_time
 `, now, id)
