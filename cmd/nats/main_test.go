@@ -19,7 +19,9 @@ func TestEndToEnd(t *testing.T) {
 			Text:      "adadf",
 			CreatedAt: ptypes.TimestampNow(),
 		},
-		Actor: &notebook.Principal{},
+		Actor: &notebook.Principal{
+			Type: notebook.Principal_USER,
+		},
 	}
 	data, err := proto.Marshal(revision)
 	if err != nil {
