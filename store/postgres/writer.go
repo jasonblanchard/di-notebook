@@ -63,18 +63,24 @@ RETURNING id, text, creator_id, created_at, updated_at
 }
 
 // DeleteEntry delete entry instance
-func (w *Writer) DeleteEntry(id int) error {
-	_, err := w.Db.Query(`
+func (w *Writer) DeleteEntry(id int) (*store.DeleteEntryOutput, error) {
+	now := time.Now()
+
+	row := w.Db.QueryRow(`
 UPDATE entries
 SET is_deleted = TRUE
-WHERE id = $1
-`, id)
+SET delete_time = $1
+WHERE id = $2
+RETURNING id, text, creator_id, created_at, updated_at, delete_time
+`, now, id)
 
+	output := &store.DeleteEntryOutput{}
+	err := row.Scan(&output.ID, &output.Text, &output.CreatorID, &output.CreatedAt, &output.UpdatedAt, &output.DeleteTime)
 	if err != nil {
-		return errors.Wrap(err, "Delete failed")
+		return nil, errors.Wrap(err, "Error deleting entry")
 	}
 
-	return nil
+	return output, nil
 }
 
 // DropEntries Drop all entries in the DB

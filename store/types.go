@@ -28,12 +28,22 @@ type UpdateEntryOutput struct {
 	UpdatedAt time.Time
 }
 
+// DeleteEntryOutput output for UpdateEntry
+type DeleteEntryOutput struct {
+	ID         int
+	Text       string
+	CreatorID  string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DeleteTime time.Time
+}
+
 // Writer interface for write ops to the store
 // TODO: Add reader methods to writer and initialize
 type Writer interface {
 	CreateEntry(*CreateEntryInput) (int, error)
 	UpdateEntry(*UpdateEntryInput) (*UpdateEntryOutput, error)
-	DeleteEntry(int) error
+	DeleteEntry(int) (*DeleteEntryOutput, error)
 	DropEntries() error
 }
 

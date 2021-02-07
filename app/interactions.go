@@ -2,7 +2,6 @@ package app
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/jasonblanchard/di-notebook/store"
 	"github.com/pkg/errors"
@@ -112,13 +111,12 @@ func (a *App) DiscardEntry(i *DiscardEntryInput, callbacks ...callback) (*Entry,
 		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot read entry"}, "Unauthorized")
 	}
 
-	err = a.StoreWriter.DeleteEntry(i.ID)
+	output, err := a.StoreWriter.DeleteEntry(i.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "Delete entry failed")
 	}
 
-	// TODO: Write this to the database
-	entry.DeleteTime = time.Now()
+	entry.DeleteTime = output.DeleteTime
 
 	for _, f := range callbacks {
 		f(entry)
