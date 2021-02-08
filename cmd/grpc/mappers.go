@@ -15,6 +15,7 @@ func EntryToEntryRevision(e *app.Entry, p *notebook.Principal) ([]byte, error) {
 		Entry: &notebook.Entry{
 			Id:         fmt.Sprintf("%d", e.ID),
 			Text:       e.Text,
+			CreatorId:  e.CreatorID,
 			CreatedAt:  timeToProtoTime(e.CreatedAt),
 			UpdatedAt:  timeToProtoTime(e.UpdatedAt),
 			DeleteTime: timeToProtoTime(e.DeleteTime),
