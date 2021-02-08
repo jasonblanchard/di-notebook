@@ -1,9 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 
-	"github.com/golang/protobuf/jsonpb"
 	"github.com/jasonblanchard/natsby"
 )
 
@@ -15,9 +15,24 @@ func (s *Service) handleDebug(c *natsby.Context) {
 		return
 	}
 	s.Logger.Info().Msg(fmt.Sprintf("%v", revision))
-	m := jsonpb.Marshaler{}
-	jsonStr, err := m.MarshalToString(revision)
-	s.Logger.Info().Msg(jsonStr)
+
+	r := &Revision{
+		Actor: &Principal{
+			Type: revision.GetActor().Type.String(),
+			ID:   revision.GetActor().GetId(),
+		},
+		Entry: &Entry{
+			ID:         revision.GetEntry().GetId(),
+			Text:       revision.GetEntry().GetText(),
+			CreatorID:  revision.GetEntry().GetCreatorId(),
+			CreatedAt:  timestamppbToTimePointer(revision.GetEntry().GetCreatedAt()),
+			UpdatedAt:  timestamppbToTimePointer(revision.GetEntry().GetUpdatedAt()),
+			DeleteTime: timestamppbToTimePointer(revision.GetEntry().GetDeleteTime()),
+		},
+	}
+
+	serialized, _ := json.Marshal(r)
+	s.Logger.Info().Msg(string(serialized))
 }
 
 func errorHandler(s *Service) natsby.RecoveryFunc {

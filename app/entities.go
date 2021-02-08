@@ -23,6 +23,6 @@ type Entry struct {
 	Text       string
 	CreatorID  string
 	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	DeleteTime time.Time
+	UpdatedAt  time.Time // TODO: Make this a pointer, too
+	DeleteTime *time.Time
 }

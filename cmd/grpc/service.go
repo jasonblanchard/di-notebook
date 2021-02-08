@@ -366,7 +366,7 @@ func (s *Service) DeleteEntry(ctx context.Context, request *notebook.DeleteEntry
 			Text:       entry.Text,
 			CreatedAt:  timeToProtoTime(entry.CreatedAt),
 			UpdatedAt:  timeToProtoTime(entry.UpdatedAt),
-			DeleteTime: timeToProtoTime(entry.DeleteTime),
+			DeleteTime: timeToProtoTime(*entry.DeleteTime),
 		},
 	}
 

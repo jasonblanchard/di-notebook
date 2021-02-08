@@ -116,7 +116,7 @@ func (a *App) DiscardEntry(i *DiscardEntryInput, callbacks ...callback) (*Entry,
 		return nil, errors.Wrap(err, "Delete entry failed")
 	}
 
-	entry.DeleteTime = output.DeleteTime
+	entry.DeleteTime = &output.DeleteTime
 
 	for _, f := range callbacks {
 		f(entry)
