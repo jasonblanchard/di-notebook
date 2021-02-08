@@ -17,7 +17,7 @@ func EntryToEntryRevision(e *app.Entry, p *notebook.Principal) ([]byte, error) {
 			Text:       e.Text,
 			CreatedAt:  timeToProtoTime(e.CreatedAt),
 			UpdatedAt:  timeToProtoTime(e.UpdatedAt),
-			DeleteTime: timeToProtoTime(*e.DeleteTime),
+			DeleteTime: timeToProtoTime(e.DeleteTime),
 		},
 		Actor: p,
 	}
