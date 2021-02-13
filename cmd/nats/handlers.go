@@ -16,19 +16,15 @@ func (s *Service) handleDebug(c *natsby.Context) {
 	}
 	s.Logger.Info().Msg(fmt.Sprintf("%v", revision))
 
-	r := &Revision{
-		Actor: &Principal{
-			Type: revision.GetActor().Type.String(),
-			ID:   revision.GetActor().GetId(),
-		},
-		Entry: &Entry{
-			ID:         revision.GetEntry().GetId(),
-			Text:       revision.GetEntry().GetText(),
-			CreatorID:  revision.GetEntry().GetCreatorId(),
-			CreatedAt:  timestamppbToTimePointer(revision.GetEntry().GetCreatedAt()),
-			UpdatedAt:  timestamppbToTimePointer(revision.GetEntry().GetUpdatedAt()),
-			DeleteTime: timestamppbToTimePointer(revision.GetEntry().GetDeleteTime()),
-		},
+	r := &EntryRevision{
+		ID:         revision.GetEntry().GetId(),
+		Text:       revision.GetEntry().GetText(),
+		CreatorID:  revision.GetEntry().GetCreatorId(),
+		CreatedAt:  timestamppbToTimePointer(revision.GetEntry().GetCreatedAt()),
+		UpdatedAt:  timestamppbToTimePointer(revision.GetEntry().GetUpdatedAt()),
+		DeleteTime: timestamppbToTimePointer(revision.GetEntry().GetDeleteTime()),
+		ActorType:  revision.GetActor().Type.String(),
+		ActorID:    revision.GetActor().GetId(),
 	}
 
 	serialized, _ := json.Marshal(r)
