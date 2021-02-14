@@ -34,14 +34,13 @@ func (s *Service) handleDebug(c *natsby.Context) {
 	record := &firehose.Record{
 		Data: []byte(serialized),
 	}
-	// TODO: Get from config
-	deliveryStreamName := "di-entry-revisions-stream-production"
 	input := &firehose.PutRecordInput{
-		DeliveryStreamName: &deliveryStreamName,
+		DeliveryStreamName: &s.FirehoseEntryRevisionsDeliveryStringName,
 		Record:             record,
 	}
 
-	_, err = s.FirehoseConnetion.PutRecord(input)
+	output, err := s.FirehoseConnetion.PutRecord(input)
+	s.Logger.Debug().Msg(fmt.Sprintf("%v", output))
 	if err != nil {
 		s.Logger.Error().Msg(err.Error())
 		c.Err = err

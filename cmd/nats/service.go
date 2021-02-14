@@ -20,9 +20,10 @@ import (
 // Service service container
 type Service struct {
 	*app.App
-	Logger            *zerolog.Logger
-	NATSConnection    *nats.Conn
-	FirehoseConnetion *firehose.Firehose
+	Logger                                   *zerolog.Logger
+	NATSConnection                           *nats.Conn
+	FirehoseConnetion                        *firehose.Firehose
+	FirehoseEntryRevisionsDeliveryStringName string
 }
 
 func initConfig(cfgFile string) error {
@@ -45,6 +46,8 @@ func NewServiceFromEnv() (*Service, error) {
 	natsURL := viper.GetString("NATS_URL")
 	debug := viper.GetBool("DEBUG")
 	pretty := viper.GetBool("PRETTY")
+	awsRegion := viper.GetString("AWS_REGION")
+	entryRevisionsDeliveryStreamName := viper.GetString("FIREHOSE_ENTRY_REVISIONS_DELIVERY_STREAM_NAME")
 
 	db, err := postgres.NewConnection(&postgres.NewConnectionInput{
 		User:     dbUser,
@@ -73,14 +76,12 @@ func NewServiceFromEnv() (*Service, error) {
 
 	logger := initializeLogger(debug, pretty)
 
-	// TODO: Include relevent environment variables
 	sess, err := session.NewSession()
 	if err != nil {
 		return nil, errors.Wrap(err, "AWS session creation failed")
 	}
-	region := "us-east-1"
 	firehoseConnection := firehose.New(sess, &aws.Config{
-		Region: &region,
+		Region: &awsRegion,
 	})
 
 	s := &Service{
@@ -88,9 +89,10 @@ func NewServiceFromEnv() (*Service, error) {
 			StoreReader: reader,
 			StoreWriter: writer,
 		},
-		NATSConnection:    nc,
-		Logger:            logger,
-		FirehoseConnetion: firehoseConnection,
+		NATSConnection:                           nc,
+		Logger:                                   logger,
+		FirehoseConnetion:                        firehoseConnection,
+		FirehoseEntryRevisionsDeliveryStringName: entryRevisionsDeliveryStreamName,
 	}
 
 	return s, nil

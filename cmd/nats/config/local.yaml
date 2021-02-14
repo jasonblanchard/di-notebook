@@ -7,3 +7,5 @@ DATABASE: di_notebook
 NATS_URL: nats://127.0.0.1:4222
 PRETTY: true
 DEBUG: true
+AWS_REGION: us-east-1
+FIREHOSE_ENTRY_REVISIONS_DELIVERY_STREAM_NAME: di-entry-revisions-stream-production

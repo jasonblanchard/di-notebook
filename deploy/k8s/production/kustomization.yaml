@@ -16,6 +16,10 @@ configMapGenerator:
   - DB_PORT=5432
   - DATABASE=di_entry
   - GITHUB_TOKEN=vault:secret/data/di-notebook/production/app#GITHUB_TOKEN
+  - AWS_REGION=us-east-1
+  - FIREHOSE_ENTRY_REVISIONS_DELIVERY_STREAM_NAME=di-entry-revisions-stream-production
+  - AWS_ACCESS_KEY_ID=vault:secret/data/di-notebook/production/app#AWS_ACCESS_KEY_ID
+  - AWS_SECRET_ACCESS_KEY=vault:secret/data/di-notebook/production/app#AWS_SECRET_ACCESS_KEY
 - name: notebook-http-config
   literals:
   - GRPC_BACKEND=notebook-grpc-production:8080

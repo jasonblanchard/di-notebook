@@ -1,3 +1,13 @@
+data "terraform_remote_state" "service_account" {
+  backend = "s3"
+
+  config = {
+    bucket = "di-terraform"
+    key    = "di-notebook/iam/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+
 resource "aws_s3_bucket" "destination" {
   bucket = "di-entry-revisions-production"
   acl    = "private"
@@ -97,4 +107,30 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
       }
     }
   }
+}
+
+resource "aws_iam_policy" "firehose_put" {
+  name = "di_entry_revisions_production_firehose_put"
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid = "",
+        Action = [
+          "firehose:PutRecord",
+          "firehose:PutRecordBatch",
+        ],
+        Resource = [
+          "${aws_kinesis_firehose_delivery_stream.extended_s3_stream.arn}"
+        ]
+        Effect = "Allow"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_user_policy_attachment" "service_account_firehose_put" {
+  user = data.terraform_remote_state.service_account.outputs.iam_user_name
+  policy_arn = aws_iam_policy.firehose_put.arn
 }
