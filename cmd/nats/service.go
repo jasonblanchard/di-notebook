@@ -5,6 +5,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/firehose"
 	"github.com/jasonblanchard/di-notebook/app"
 	"github.com/jasonblanchard/di-notebook/store/postgres"
 	"github.com/jasonblanchard/natsby"
@@ -17,8 +20,9 @@ import (
 // Service service container
 type Service struct {
 	*app.App
-	Logger         *zerolog.Logger
-	NATSConnection *nats.Conn
+	Logger            *zerolog.Logger
+	NATSConnection    *nats.Conn
+	FirehoseConnetion *firehose.Firehose
 }
 
 func initConfig(cfgFile string) error {
@@ -69,13 +73,24 @@ func NewServiceFromEnv() (*Service, error) {
 
 	logger := initializeLogger(debug, pretty)
 
+	// TODO: Include relevent environment variables
+	sess, err := session.NewSession()
+	if err != nil {
+		return nil, errors.Wrap(err, "AWS session creation failed")
+	}
+	region := "us-east-1"
+	firehoseConnection := firehose.New(sess, &aws.Config{
+		Region: &region,
+	})
+
 	s := &Service{
 		App: &app.App{
 			StoreReader: reader,
 			StoreWriter: writer,
 		},
-		NATSConnection: nc,
-		Logger:         logger,
+		NATSConnection:    nc,
+		Logger:            logger,
+		FirehoseConnetion: firehoseConnection,
 	}
 
 	return s, nil

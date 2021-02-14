@@ -17,7 +17,7 @@ func TestEndToEnd(t *testing.T) {
 
 	revision := &notebook.EntryRevision{
 		Entry: &notebook.Entry{
-			Text:      "adadf",
+			Text:      "a new one from the test",
 			CreatedAt: ptypes.TimestampNow(),
 			UpdatedAt: &timestamppb.Timestamp{},
 			DeleteTime: &timestamppb.Timestamp{

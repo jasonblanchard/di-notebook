@@ -5,7 +5,7 @@ provider "aws" {
 terraform {
   backend "s3" {
     bucket = "di-terraform"
-    key    = "di-notebook/kinesis/terraform.tfstate"
+    key    = "di-notebook/datamesh/terraform.tfstate"
     region = "us-east-1"
   }
 }

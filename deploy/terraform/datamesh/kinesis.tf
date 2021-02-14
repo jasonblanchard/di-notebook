@@ -9,7 +9,7 @@ resource "aws_s3_bucket" "destination" {
 }
 
 resource "aws_iam_policy" "firehose_policy" {
-  name        = "di_entry_revisions_firehose_stream_policy"
+  name = "di_entry_revisions_firehose_stream_policy"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -17,18 +17,18 @@ resource "aws_iam_policy" "firehose_policy" {
       {
         Sid = "",
         Action = [
-            "s3:AbortMultipartUpload",
-            "s3:GetBucketLocation",
-            "s3:GetObject",
-            "s3:ListBucket",
-            "s3:ListBucketMultipartUploads",
-            "s3:PutObject"
+          "s3:AbortMultipartUpload",
+          "s3:GetBucketLocation",
+          "s3:GetObject",
+          "s3:ListBucket",
+          "s3:ListBucketMultipartUploads",
+          "s3:PutObject"
         ],
         Resource = [
-            "arn:aws:s3:::di-entry-revisions-production",
-            "arn:aws:s3:::di-entry-revisions-production/*"
-            ]
-        Effect   = "Allow"
+          "arn:aws:s3:::di-entry-revisions-production",
+          "arn:aws:s3:::di-entry-revisions-production/*"
+        ]
+        Effect = "Allow"
       },
     ]
   })
@@ -64,12 +64,12 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
   destination = "extended_s3"
 
   extended_s3_configuration {
-    bucket_arn = aws_s3_bucket.destination.arn
-    role_arn   = aws_iam_role.firehose_role.arn
-    prefix = "year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/"
+    bucket_arn          = aws_s3_bucket.destination.arn
+    role_arn            = aws_iam_role.firehose_role.arn
+    prefix              = "year=!{timestamp:yyyy}/month=!{timestamp:MM}/"
     error_output_prefix = "error/!{firehose:random-string}/!{firehose:error-output-type}/!{timestamp:yyyy/MM/dd}/"
-    buffer_interval = "60"
-    buffer_size = 64
+    buffer_interval     = "60"
+    buffer_size         = 64
     # cloudwatch_logging_options {
     #   enabled = true
     #   log_group_name = "/aws/kinesisfirehose/di-entry-revisions-stream-production"
@@ -90,10 +90,10 @@ resource "aws_kinesis_firehose_delivery_stream" "extended_s3_stream" {
       }
 
       schema_configuration {
-          database_name = "di"
-          role_arn = "arn:aws:iam::076797644834:role/service-role/AWSGlueServiceRole-test"
-          table_name = "di_entry_revisions"
-          region = "us-east-1"
+        database_name = "di"
+        role_arn      = "arn:aws:iam::076797644834:role/service-role/AWSGlueServiceRole-test"
+        table_name    = "di_entry_revisions_production"
+        region        = "us-east-1"
       }
     }
   }

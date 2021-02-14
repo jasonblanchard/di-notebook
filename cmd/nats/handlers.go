@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/aws/aws-sdk-go/service/firehose"
 	"github.com/jasonblanchard/natsby"
 )
 
@@ -29,6 +30,22 @@ func (s *Service) handleDebug(c *natsby.Context) {
 
 	serialized, _ := json.Marshal(r)
 	s.Logger.Info().Msg(string(serialized))
+
+	record := &firehose.Record{
+		Data: []byte(serialized),
+	}
+	// TODO: Get from config
+	deliveryStreamName := "di-entry-revisions-stream-production"
+	input := &firehose.PutRecordInput{
+		DeliveryStreamName: &deliveryStreamName,
+		Record:             record,
+	}
+
+	_, err = s.FirehoseConnetion.PutRecord(input)
+	if err != nil {
+		s.Logger.Error().Msg(err.Error())
+		c.Err = err
+	}
 }
 
 func errorHandler(s *Service) natsby.RecoveryFunc {
