@@ -17,6 +17,9 @@ RUN go build -o build/nats -v ./cmd/nats
 FROM ubuntu AS run
 ARG BUILD_DIR
 
+RUN apt-get update
+RUN apt-get install -y ca-certificates
+
 RUN useradd -ms /bin/bash docker
 USER docker
 
