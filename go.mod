@@ -11,14 +11,14 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-migrate/migrate/v4 v4.14.1
-	github.com/golang/protobuf v1.4.3
+	github.com/golang/protobuf v1.5.2
 	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.1.0
 	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/jasonblanchard/di-apis v0.0.0-20210206205921-95f932d6d626
+	github.com/jasonblanchard/di-apis v0.0.0-20210528195146-e169af9ec5a2
 	github.com/jasonblanchard/di-messages/packages/go v0.0.0-20210109181449-b8ce80767bbc
 	github.com/jasonblanchard/natsby v0.0.1
 	github.com/kr/text v0.2.0 // indirect
@@ -57,7 +57,7 @@ require (
 	golang.org/x/tools v0.0.0-20210112213507-9a6582cd13ce // indirect
 	google.golang.org/genproto v0.0.0-20210111234610-22ae2b108f89
 	google.golang.org/grpc v1.34.1
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/protobuf v1.26.0
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
