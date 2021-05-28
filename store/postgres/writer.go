@@ -93,14 +93,18 @@ func (w *Writer) DropEntries() error {
 }
 
 func (w *Writer) UndeleteEntry(id int) error {
-	row := w.Db.QueryRow(`
+	rows, err := w.Db.Query(`
 UPDATE entries
 SET delete_time = $1
 WHERE id = $2
 `, nil, id)
 
-	if row.Err() != nil {
-		return errors.Wrap(row.Err(), "undelete failed failed")
+	if err != nil {
+		return errors.Wrap(err, "undelete failed failed")
+	}
+
+	if rows != nil {
+		defer rows.Close()
 	}
 
 	return nil
