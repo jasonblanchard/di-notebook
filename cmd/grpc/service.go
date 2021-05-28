@@ -373,6 +373,11 @@ func (s *Service) DeleteEntry(ctx context.Context, request *notebook.DeleteEntry
 	return response, nil
 }
 
+// UndeleteEntry implements UndeleteEntry
+func (s *Service) UndeleteEntry(ctx context.Context, request *notebook.UndeleteEntryRequest) (*notebook.Entry, error) {
+	return nil, status.Error(codes.Unimplemented, "Not implemented yet")
+}
+
 func timeToProtoTime(time time.Time) *timestamp.Timestamp {
 	seconds := time.Unix()
 

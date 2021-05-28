@@ -332,6 +332,8 @@ github.com/jackc/puddle v0.0.0-20190413234325-e4ced69a3a2b/go.mod h1:m4B5Dj62Y0f
 github.com/jackc/puddle v0.0.0-20190608224051-11cab39313c9/go.mod h1:m4B5Dj62Y0fbyuIc15OsIqK0+JU8nkqQjsgx7dvjSWk=
 github.com/jasonblanchard/di-apis v0.0.0-20210528195146-e169af9ec5a2 h1:mRyDAOEouXnvgRe1A/sAbHypp62OeUyccSl5ZqRJH6o=
 github.com/jasonblanchard/di-apis v0.0.0-20210528195146-e169af9ec5a2/go.mod h1:5N7ohVp+Vc8WuobVsdwfa3a7Qmgmcx6kLo0WW0bdsiM=
+github.com/jasonblanchard/di-apis v0.0.0-20210528200935-a80bb6117983 h1:q/ihtUZXIQeZZULQeDhTN6P6nwynei5JJ1Bd2s4jgqQ=
+github.com/jasonblanchard/di-apis v0.0.0-20210528200935-a80bb6117983/go.mod h1:5N7ohVp+Vc8WuobVsdwfa3a7Qmgmcx6kLo0WW0bdsiM=
 github.com/jasonblanchard/di-messages/packages/go v0.0.0-20210109181449-b8ce80767bbc h1:z1S7knjf9fOZkRfXvlpaBCm4Ok8ggAblkB8a7rfg69E=
 github.com/jasonblanchard/di-messages/packages/go v0.0.0-20210109181449-b8ce80767bbc/go.mod h1:/d5kkWTvv+CO2iEH1gT+QWMULhxIZFLv5vBo7w6W4KY=
 github.com/jasonblanchard/natsby v0.0.1 h1:7B3X/YKCCANQNJJFTMF/KuSOeJOA2whYGsqV41bd9Cg=

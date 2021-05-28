@@ -18,7 +18,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.1.0
 	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/jasonblanchard/di-apis v0.0.0-20210528195146-e169af9ec5a2
+	github.com/jasonblanchard/di-apis v0.0.0-20210528200935-a80bb6117983
 	github.com/jasonblanchard/di-messages/packages/go v0.0.0-20210109181449-b8ce80767bbc
 	github.com/jasonblanchard/natsby v0.0.1
 	github.com/kr/text v0.2.0 // indirect
