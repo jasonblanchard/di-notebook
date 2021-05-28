@@ -375,7 +375,55 @@ func (s *Service) DeleteEntry(ctx context.Context, request *notebook.DeleteEntry
 
 // UndeleteEntry implements UndeleteEntry
 func (s *Service) UndeleteEntry(ctx context.Context, request *notebook.UndeleteEntryRequest) (*notebook.Entry, error) {
-	return nil, status.Error(codes.Unimplemented, "Not implemented yet")
+	md, ok := metadata.FromIncomingContext(ctx)
+
+	if ok != true {
+		return nil, status.Error(codes.InvalidArgument, "Missing metadata")
+	}
+
+	principal, err := getPrincipal(md)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, status.Error(codes.Unauthenticated, "Error")
+	}
+
+	id, err := strconv.Atoi(request.GetId())
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, status.Error(codes.Unknown, "Error")
+	}
+
+	input := &app.UndeleteEntryInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   principal.GetId(),
+		},
+		ID: id,
+	}
+
+	entry, err := s.App.UndeleteEntry(input, func(entry *app.Entry) {
+		revision, err := EntryToEntryRevision(entry, principal)
+		if err != nil {
+			s.Logger.Error(err.Error())
+			return
+		}
+		s.NatsConnection.Publish("data.mesh.notebook.v2.EntryRevision", revision)
+	})
+	if err != nil {
+		s.Logger.Error(err.Error())
+		return nil, MapError(err)
+	}
+
+	response := &notebook.Entry{
+		Id:         fmt.Sprintf("%d", entry.ID),
+		CreatorId:  entry.CreatorID,
+		Text:       entry.Text,
+		CreatedAt:  timeToProtoTime(entry.CreatedAt),
+		UpdatedAt:  timeToProtoTime(entry.UpdatedAt),
+		DeleteTime: timeToProtoTime(entry.DeleteTime),
+	}
+
+	return response, nil
 }
 
 func timeToProtoTime(time time.Time) *timestamp.Timestamp {

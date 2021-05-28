@@ -45,6 +45,7 @@ type Writer interface {
 	UpdateEntry(*UpdateEntryInput) (*UpdateEntryOutput, error)
 	DeleteEntry(int) (*DeleteEntryOutput, error)
 	DropEntries() error
+	UndeleteEntry(int) error
 }
 
 // GetEntryOutput output for GetEntry

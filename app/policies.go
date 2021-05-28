@@ -20,3 +20,7 @@ func canChangeEntry(p *Principal, entry *Entry) bool {
 func canListEntries(p *Principal, creatorID string) bool {
 	return p.ID == creatorID
 }
+
+func canUndeleteEntry(p *Principal, entry *Entry) bool {
+	return p.ID == entry.CreatorID
+}

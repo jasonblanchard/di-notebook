@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/jasonblanchard/di-notebook/store"
 	"github.com/pkg/errors"
@@ -196,4 +197,37 @@ func (a *App) ListEntries(i *ListEntriesInput) (*ListEntriesOutput, error) {
 	}
 
 	return output, nil
+}
+
+// UndeleteEntry Input for UndeleteEntry
+type UndeleteEntryInput struct {
+	Principal *Principal
+	ID        int
+}
+
+// UndeleteEntry unmarks entry as deleted
+func (a *App) UndeleteEntry(i *UndeleteEntryInput, callbacks ...callback) (*Entry, error) {
+	getEntryOutput, err := a.StoreReader.GetEntry(i.ID)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error getting entry")
+	}
+
+	entry := storeGetEntryOutputToEntry(getEntryOutput)
+
+	if !canUndeleteEntry(i.Principal, entry) {
+		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot undelete entry"}, "Unauthorized")
+	}
+
+	err = a.StoreWriter.UndeleteEntry(i.ID)
+	if err != nil {
+		return nil, errors.Wrap(err, "Undelete entry failed")
+	}
+
+	entry.DeleteTime = time.Time{}
+
+	for _, f := range callbacks {
+		f(entry)
+	}
+
+	return entry, nil
 }
