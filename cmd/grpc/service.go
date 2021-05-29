@@ -105,8 +105,7 @@ func NewService() (*Service, error) {
 }
 
 func (s *Service) handleError(p interface{}) error {
-	fmt.Println("Oops")
-	fmt.Println(fmt.Sprintf("panic triggered: %v", p))
+	s.Logger.Error("Captured panic")
 	return status.Errorf(codes.Unknown, "panic triggered: %v", p)
 }
 

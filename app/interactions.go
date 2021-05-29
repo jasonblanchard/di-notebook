@@ -212,16 +212,24 @@ func (a *App) UndeleteEntry(i *UndeleteEntryInput, callbacks ...callback) (*Entr
 		return nil, errors.Wrap(err, "Error getting entry")
 	}
 
+	fmt.Println("getEntryOutput", getEntryOutput)
+
 	entry := storeGetEntryOutputToEntry(getEntryOutput)
+
+	fmt.Println("getEntry", entry)
 
 	if !canUndeleteEntry(i.Principal, entry) {
 		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot undelete entry"}, "Unauthorized")
 	}
 
+	fmt.Println("canUndeleteEntry ran")
+
 	err = a.StoreWriter.UndeleteEntry(i.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "Undelete entry failed")
 	}
+
+	fmt.Println("a.StoreWriter.UndeleteEntry ran")
 
 	entry.DeleteTime = time.Time{}
 
