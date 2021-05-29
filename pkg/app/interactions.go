@@ -10,15 +10,15 @@ import (
 
 const defaultListEntryPageSize int = 50
 
-// StartNewEntryInput input for StartNewEntry
-type StartNewEntryInput struct {
+// CreateEntryInput input for CreateEntry
+type CreateEntryInput struct {
 	Principal *Principal
 	Text      string
 	CreatorID string
 }
 
-// StartNewEntry start writing a new entry
-func (a *App) StartNewEntry(i *StartNewEntryInput) (int, error) {
+// CreateEntry start writing a new entry
+func (a *App) CreateEntry(i *CreateEntryInput) (int, error) {
 	// TODO: Check policy to make sure principle can do this
 	createEntryInput := &store.CreateEntryInput{
 		Text:      i.Text,
@@ -27,14 +27,14 @@ func (a *App) StartNewEntry(i *StartNewEntryInput) (int, error) {
 	return a.StoreWriter.CreateEntry(createEntryInput)
 }
 
-// ReadEntryInput Input for ReadEntry
-type ReadEntryInput struct {
+// GetEntryInput Input for GetEntry
+type GetEntryInput struct {
 	Principal *Principal
 	ID        int
 }
 
-// ReadEntry get an entry for reading
-func (a *App) ReadEntry(i *ReadEntryInput) (*Entry, error) {
+// GetEntry get an entry for reading
+func (a *App) GetEntry(i *GetEntryInput) (*Entry, error) {
 	getEntryOutput, err := a.StoreReader.GetEntry(i.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetEntry failed")
@@ -46,15 +46,15 @@ func (a *App) ReadEntry(i *ReadEntryInput) (*Entry, error) {
 
 	entry := storeGetEntryOutputToEntry(getEntryOutput)
 
-	if !canReadEntry(i.Principal, entry) {
+	if !canGetEntry(i.Principal, entry) {
 		return nil, errors.Wrap(&UnauthorizedError{s: fmt.Sprintf("Principal %s cannot read entry %v by author %s", i.Principal.ID, entry.ID, entry.CreatorID)}, "Unauthorized")
 	}
 
 	return entry, nil
 }
 
-// ChangeEntryInput input for ChangeEntry
-type ChangeEntryInput struct {
+// UpdateEntryInput input for UpdateEntry
+type UpdateEntryInput struct {
 	Principal *Principal
 	ID        int
 	Text      string
@@ -62,8 +62,8 @@ type ChangeEntryInput struct {
 
 type callback func(*Entry)
 
-// ChangeEntry Change an existing entry
-func (a *App) ChangeEntry(i *ChangeEntryInput, callbacks ...callback) (*Entry, error) {
+// UpdateEntry Change an existing entry
+func (a *App) UpdateEntry(i *UpdateEntryInput, callbacks ...callback) (*Entry, error) {
 	getEntryOutput, err := a.StoreReader.GetEntry(i.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetEntry failed")
@@ -71,7 +71,7 @@ func (a *App) ChangeEntry(i *ChangeEntryInput, callbacks ...callback) (*Entry, e
 
 	entry := storeGetEntryOutputToEntry(getEntryOutput)
 
-	if !canChangeEntry(i.Principal, entry) {
+	if !canUpdateEntry(i.Principal, entry) {
 		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot change entry"}, "Unauthorized")
 	}
 
@@ -93,14 +93,14 @@ func (a *App) ChangeEntry(i *ChangeEntryInput, callbacks ...callback) (*Entry, e
 	return updatedEntry, nil
 }
 
-// DiscardEntryInput Input for DiscardEntryInput
-type DiscardEntryInput struct {
+// DeleteEntryInput Input for DeleteEntry
+type DeleteEntryInput struct {
 	Principal *Principal
 	ID        int
 }
 
-// DiscardEntry marks entry as deleted
-func (a *App) DiscardEntry(i *DiscardEntryInput, callbacks ...callback) (*Entry, error) {
+// DeleteEntry marks entry as deleted
+func (a *App) DeleteEntry(i *DeleteEntryInput, callbacks ...callback) (*Entry, error) {
 	getEntryOutput, err := a.StoreReader.GetEntry(i.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error getting entry")
@@ -108,7 +108,7 @@ func (a *App) DiscardEntry(i *DiscardEntryInput, callbacks ...callback) (*Entry,
 
 	entry := storeGetEntryOutputToEntry(getEntryOutput)
 
-	if !canDiscardEntry(i.Principal, entry) {
+	if !canDeleteEntry(i.Principal, entry) {
 		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot read entry"}, "Unauthorized")
 	}
 

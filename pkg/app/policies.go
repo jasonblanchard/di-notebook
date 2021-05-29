@@ -1,6 +1,6 @@
 package app
 
-func canReadEntry(p *Principal, entry *Entry) bool {
+func canGetEntry(p *Principal, entry *Entry) bool {
 	switch p.Type {
 	case PrincipalUSER:
 		return p.ID == entry.CreatorID
@@ -9,11 +9,11 @@ func canReadEntry(p *Principal, entry *Entry) bool {
 	}
 }
 
-func canDiscardEntry(p *Principal, entry *Entry) bool {
+func canDeleteEntry(p *Principal, entry *Entry) bool {
 	return p.ID == entry.CreatorID
 }
 
-func canChangeEntry(p *Principal, entry *Entry) bool {
+func canUpdateEntry(p *Principal, entry *Entry) bool {
 	return p.ID == entry.CreatorID
 }
 

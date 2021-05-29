@@ -46,7 +46,7 @@ func createEntries(app *App, creatorID string, n int) error {
 	}
 
 	for i := 0; i < n; i++ {
-		_, err := app.StartNewEntry(&StartNewEntryInput{
+		_, err := app.CreateEntry(&CreateEntryInput{
 			Principal: author,
 			Text:      fmt.Sprintf("Hello %d", i),
 			CreatorID: creatorID,
@@ -78,7 +78,7 @@ func TestCreateReadFlow(t *testing.T) {
 		ID:   "123",
 	}
 
-	id, err := app.StartNewEntry(&StartNewEntryInput{
+	id, err := app.CreateEntry(&CreateEntryInput{
 		Principal: author,
 		Text:      "hello",
 		CreatorID: "123",
@@ -87,7 +87,7 @@ func TestCreateReadFlow(t *testing.T) {
 		panic(err)
 	}
 
-	output, err := app.ReadEntry(&ReadEntryInput{
+	output, err := app.GetEntry(&GetEntryInput{
 		Principal: author,
 		ID:        id,
 	})
@@ -120,7 +120,7 @@ func TestUpdateFlow(t *testing.T) {
 		ID:   "123",
 	}
 
-	id, err := app.StartNewEntry(&StartNewEntryInput{
+	id, err := app.CreateEntry(&CreateEntryInput{
 		Principal: author,
 		Text:      "hello",
 		CreatorID: "123",
@@ -129,7 +129,7 @@ func TestUpdateFlow(t *testing.T) {
 		panic(err)
 	}
 
-	_, err = app.ChangeEntry(&ChangeEntryInput{
+	_, err = app.UpdateEntry(&UpdateEntryInput{
 		Principal: author,
 		ID:        id,
 		Text:      "hello updated",
@@ -139,7 +139,7 @@ func TestUpdateFlow(t *testing.T) {
 		panic(err)
 	}
 
-	output, err := app.ReadEntry(&ReadEntryInput{
+	output, err := app.GetEntry(&GetEntryInput{
 		Principal: author,
 		ID:        id,
 	})

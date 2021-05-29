@@ -133,7 +133,7 @@ func (s *Service) GetEntry(ctx context.Context, request *notebook.GetEntryReques
 		return nil, status.Error(codes.NotFound, "Not found")
 	}
 
-	readEntryInput := &app.ReadEntryInput{
+	getEntryInput := &app.GetEntryInput{
 		Principal: &app.Principal{
 			Type: app.PrincipalUSER,
 			ID:   principal.GetId(),
@@ -141,7 +141,7 @@ func (s *Service) GetEntry(ctx context.Context, request *notebook.GetEntryReques
 		ID: id,
 	}
 
-	entry, err := s.App.ReadEntry(readEntryInput)
+	entry, err := s.App.GetEntry(getEntryInput)
 	if err != nil {
 		s.Logger.Error(err.Error())
 		return nil, MapError(err)
@@ -174,7 +174,7 @@ func (s *Service) CreateEntry(ctx context.Context, request *notebook.CreateEntry
 		return nil, status.Error(codes.Unauthenticated, "Error")
 	}
 
-	input := &app.StartNewEntryInput{
+	input := &app.CreateEntryInput{
 		Principal: &app.Principal{
 			Type: app.PrincipalUSER,
 			ID:   principal.GetId(),
@@ -183,7 +183,7 @@ func (s *Service) CreateEntry(ctx context.Context, request *notebook.CreateEntry
 		Text:      request.GetEntry().GetText(),
 	}
 
-	id, err := s.App.StartNewEntry(input)
+	id, err := s.App.CreateEntry(input)
 	if err != nil {
 		s.Logger.Error(err.Error())
 		return nil, MapError(err)
@@ -283,7 +283,7 @@ func (s *Service) UpdateEntry(ctx context.Context, request *notebook.UpdateEntry
 		return nil, status.Error(codes.Unknown, "Error")
 	}
 
-	input := &app.ChangeEntryInput{
+	input := &app.UpdateEntryInput{
 		Principal: &app.Principal{
 			Type: app.PrincipalUSER,
 			ID:   principal.GetId(),
@@ -292,7 +292,7 @@ func (s *Service) UpdateEntry(ctx context.Context, request *notebook.UpdateEntry
 		Text: request.GetEntry().GetText(),
 	}
 
-	entry, err := s.App.ChangeEntry(input, func(entry *app.Entry) {
+	entry, err := s.App.UpdateEntry(input, func(entry *app.Entry) {
 		revision, err := EntryToEntryRevision(entry, principal)
 		if err != nil {
 			s.Logger.Error(err.Error())
@@ -337,7 +337,7 @@ func (s *Service) DeleteEntry(ctx context.Context, request *notebook.DeleteEntry
 		return nil, status.Error(codes.Unknown, "Error")
 	}
 
-	input := &app.DiscardEntryInput{
+	input := &app.DeleteEntryInput{
 		Principal: &app.Principal{
 			Type: app.PrincipalUSER,
 			ID:   principal.GetId(),
@@ -345,7 +345,7 @@ func (s *Service) DeleteEntry(ctx context.Context, request *notebook.DeleteEntry
 		ID: id,
 	}
 
-	entry, err := s.App.DiscardEntry(input, func(entry *app.Entry) {
+	entry, err := s.App.DeleteEntry(input, func(entry *app.Entry) {
 		revision, err := EntryToEntryRevision(entry, principal)
 		if err != nil {
 			s.Logger.Error(err.Error())
