@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/jasonblanchard/di-notebook/store"
+	"github.com/jasonblanchard/di-notebook/pkg/store"
 )
 
 func storeGetEntryOutputToEntry(o *store.GetEntryOutput) *Entry {

@@ -3,7 +3,7 @@ package postgres
 import (
 	"database/sql"
 
-	"github.com/jasonblanchard/di-notebook/store"
+	"github.com/jasonblanchard/di-notebook/pkg/store"
 	"github.com/pkg/errors"
 )
 

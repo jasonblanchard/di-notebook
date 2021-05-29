@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jasonblanchard/di-notebook/store/postgres"
+	"github.com/jasonblanchard/di-notebook/pkg/store/postgres"
 	_ "github.com/lib/pq"
 	"github.com/magiconair/properties/assert"
 )

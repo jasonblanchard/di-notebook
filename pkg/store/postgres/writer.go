@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/jasonblanchard/di-notebook/store"
+	"github.com/jasonblanchard/di-notebook/pkg/store"
 	"github.com/pkg/errors"
 )
 

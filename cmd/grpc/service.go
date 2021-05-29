@@ -9,8 +9,8 @@ import (
 
 	"github.com/golang/protobuf/ptypes/timestamp"
 	notebook "github.com/jasonblanchard/di-apis/gen/pb-go/notebook/v2"
-	"github.com/jasonblanchard/di-notebook/app"
-	"github.com/jasonblanchard/di-notebook/store/postgres"
+	"github.com/jasonblanchard/di-notebook/pkg/app"
+	"github.com/jasonblanchard/di-notebook/pkg/store/postgres"
 	"github.com/nats-io/nats.go"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"

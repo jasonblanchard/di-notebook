@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	notebook "github.com/jasonblanchard/di-apis/gen/pb-go/notebook/v2"
-	"github.com/jasonblanchard/di-notebook/app"
+	"github.com/jasonblanchard/di-notebook/pkg/app"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 )

@@ -9,8 +9,8 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/jasonblanchard/di-messages/packages/go/messages/notebook"
-	"github.com/jasonblanchard/di-notebook/app"
-	"github.com/jasonblanchard/di-notebook/store/postgres"
+	"github.com/jasonblanchard/di-notebook/pkg/app"
+	"github.com/jasonblanchard/di-notebook/pkg/store/postgres"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
