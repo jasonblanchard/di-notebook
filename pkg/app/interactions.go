@@ -207,22 +207,21 @@ type UndeleteEntryInput struct {
 
 // UndeleteEntry unmarks entry as deleted
 func (a *App) UndeleteEntry(i *UndeleteEntryInput, callbacks ...callback) (*Entry, error) {
-	// TODO: Fix this check. Can't use existing GetEntry method because it's filtering out deleted
-	// if !canUndeleteEntry(i.Principal, entry) {
-	// 	return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot undelete entry"}, "Unauthorized")
-	// }
-
-	err := a.StoreWriter.UndeleteEntry(i.ID)
-	if err != nil {
-		return nil, errors.Wrap(err, "Undelete entry failed")
-	}
-
-	getEntryOutput, err := a.StoreReader.GetEntry(i.ID)
+	getEntryOutput, err := a.StoreReader.GetDeletedEntry(i.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error getting entry")
 	}
 
 	entry := storeGetEntryOutputToEntry(getEntryOutput)
+
+	if !canUndeleteEntry(i.Principal, entry) {
+		return nil, errors.Wrap(&UnauthorizedError{s: "Principal cannot undelete entry"}, "Unauthorized")
+	}
+
+	err = a.StoreWriter.UndeleteEntry(i.ID)
+	if err != nil {
+		return nil, errors.Wrap(err, "Undelete entry failed")
+	}
 
 	entry.DeleteTime = time.Time{}
 

@@ -34,6 +34,28 @@ AND delete_time IS NULL
 	return output, nil
 }
 
+// GetDeletedEntry gets a deleted entry
+func (r *Reader) GetDeletedEntry(id int) (*store.GetEntryOutput, error) {
+	row := r.Db.QueryRow(`
+SELECT id, text, creator_id, created_at, updated_at
+FROM entries
+WHERE id = $1
+AND delete_time IS NOT NULL
+`, id)
+
+	output := &store.GetEntryOutput{}
+	err := row.Scan(&output.ID, &output.Text, &output.CreatorID, &output.CreatedAt, &output.UpdatedAt)
+	if err == sql.ErrNoRows {
+		// TODO: This is kinda dumb... maybe throw an error type?
+		return nil, nil
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "query failed")
+	}
+
+	return output, nil
+}
+
 // ListEntries lists entries in descending order of created_at
 func (r *Reader) ListEntries(i *store.ListEntriesInput) (*store.ListEntriesOutputCollection, error) {
 	var rows *sql.Rows

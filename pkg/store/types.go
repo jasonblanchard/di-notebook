@@ -95,6 +95,7 @@ type GetEntriesPaginationInfoOutput struct {
 // Reader interface
 type Reader interface {
 	GetEntry(id int) (*GetEntryOutput, error)
+	GetDeletedEntry(id int) (*GetEntryOutput, error)
 	ListEntries(*ListEntriesInput) (*ListEntriesOutputCollection, error)
 	GetEntriesPaginationInfo(*GetPaginationInfoInput) (*GetEntriesPaginationInfoOutput, error)
 }
