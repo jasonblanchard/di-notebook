@@ -26,12 +26,12 @@ func main() {
 		panic(err)
 	}
 
-	s, err := NewService()
+	srv, err := NewServer()
 	if err != nil {
 		panic(err)
 	}
 
-	port := s.Port
+	port := srv.Port
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", port))
 	if err != nil {
@@ -39,12 +39,12 @@ func main() {
 	}
 	defer lis.Close()
 
-	s.Logger.Info(fmt.Sprintf("Listening on port %s 🚀", port))
+	srv.Logger.Info(fmt.Sprintf("Listening on port %s 🚀", port))
 
-	defer s.Logger.Sync()
+	defer srv.Logger.Sync()
 
 	http.HandleFunc("/health", func(w http.ResponseWriter, req *http.Request) {
-		s.Logger.Info("/health")
+		srv.Logger.Info("/health")
 		fmt.Fprintf(w, "ok")
 	})
 
@@ -53,24 +53,24 @@ func main() {
 		http.ListenAndServe(":8081", nil)
 	}()
 
-	grpc_zap.ReplaceGrpcLoggerV2(s.Logger)
+	grpc_zap.ReplaceGrpcLoggerV2(srv.Logger)
 
 	recoveryOpts := []grpc_recovery.Option{
-		grpc_recovery.WithRecoveryHandler(s.handleError),
+		grpc_recovery.WithRecoveryHandler(srv.handleError),
 	}
 
 	grpcServer := grpc.NewServer(
 		grpc_middleware.WithUnaryServerChain(
 			grpc_ctxtags.UnaryServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
-			grpc_zap.UnaryServerInterceptor(s.Logger),
+			grpc_zap.UnaryServerInterceptor(srv.Logger),
 			grpc_recovery.UnaryServerInterceptor(recoveryOpts...),
 		),
 		grpc_middleware.WithStreamServerChain(
 			grpc_ctxtags.StreamServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
-			grpc_zap.StreamServerInterceptor(s.Logger),
+			grpc_zap.StreamServerInterceptor(srv.Logger),
 			grpc_recovery.StreamServerInterceptor(recoveryOpts...),
 		),
 	)
-	notebook.RegisterNotebookServer(grpcServer, s)
+	notebook.RegisterNotebookServer(grpcServer, srv)
 	grpcServer.Serve(lis)
 }

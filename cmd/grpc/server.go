@@ -20,8 +20,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Service service container
-type Service struct {
+// Server Server container
+type Server struct {
 	*app.App
 	notebook.UnimplementedNotebookServer
 	Logger         *zap.Logger
@@ -39,8 +39,8 @@ func initConfig(cfgFile string) error {
 	return nil
 }
 
-// NewService Create a new service from env
-func NewService() (*Service, error) {
+// NewServer Create a new Server from env
+func NewServer() (*Server, error) {
 	dbUser := viper.GetString("DB_USER")
 	dbPassword := viper.GetString("DB_PASSWORD")
 	dbHost := viper.GetString("DB_HOST")
@@ -50,7 +50,7 @@ func NewService() (*Service, error) {
 	natsURL := viper.GetString("NATS_URL")
 	port := viper.GetString("PORT")
 
-	s := &Service{}
+	s := &Server{}
 
 	s.Port = port
 
@@ -104,13 +104,13 @@ func NewService() (*Service, error) {
 	return s, nil
 }
 
-func (s *Service) handleError(p interface{}) error {
+func (s *Server) handleError(p interface{}) error {
 	s.Logger.Error("Captured panic")
 	return status.Errorf(codes.Unknown, "panic triggered: %v", p)
 }
 
 // GetEntry implements GetEntry
-func (s *Service) GetEntry(ctx context.Context, request *notebook.GetEntryRequest) (*notebook.Entry, error) {
+func (s *Server) GetEntry(ctx context.Context, request *notebook.GetEntryRequest) (*notebook.Entry, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 
 	if ok != true {
@@ -161,7 +161,7 @@ func (s *Service) GetEntry(ctx context.Context, request *notebook.GetEntryReques
 }
 
 // CreateEntry implements CreateEntry
-func (s *Service) CreateEntry(ctx context.Context, request *notebook.CreateEntryRequest) (*notebook.Entry, error) {
+func (s *Server) CreateEntry(ctx context.Context, request *notebook.CreateEntryRequest) (*notebook.Entry, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 
 	if ok != true {
@@ -198,7 +198,7 @@ func (s *Service) CreateEntry(ctx context.Context, request *notebook.CreateEntry
 }
 
 // ListEntries implements ListEntries
-func (s *Service) ListEntries(ctx context.Context, request *notebook.ListEntryRequest) (*notebook.ListEntriesResponse, error) {
+func (s *Server) ListEntries(ctx context.Context, request *notebook.ListEntryRequest) (*notebook.ListEntriesResponse, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 
 	if ok != true {
@@ -264,7 +264,7 @@ func (s *Service) ListEntries(ctx context.Context, request *notebook.ListEntryRe
 }
 
 // UpdateEntry implements UpdateEntry
-func (s *Service) UpdateEntry(ctx context.Context, request *notebook.UpdateEntryRequest) (*notebook.Entry, error) {
+func (s *Server) UpdateEntry(ctx context.Context, request *notebook.UpdateEntryRequest) (*notebook.Entry, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 
 	if ok != true {
@@ -318,7 +318,7 @@ func (s *Service) UpdateEntry(ctx context.Context, request *notebook.UpdateEntry
 }
 
 // DeleteEntry implements DeleteEntry
-func (s *Service) DeleteEntry(ctx context.Context, request *notebook.DeleteEntryRequest) (*notebook.DeleteEntryResponse, error) {
+func (s *Server) DeleteEntry(ctx context.Context, request *notebook.DeleteEntryRequest) (*notebook.DeleteEntryResponse, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 
 	if ok != true {
@@ -373,7 +373,7 @@ func (s *Service) DeleteEntry(ctx context.Context, request *notebook.DeleteEntry
 }
 
 // UndeleteEntry implements UndeleteEntry
-func (s *Service) UndeleteEntry(ctx context.Context, request *notebook.UndeleteEntryRequest) (*notebook.Entry, error) {
+func (s *Server) UndeleteEntry(ctx context.Context, request *notebook.UndeleteEntryRequest) (*notebook.Entry, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 
 	if ok != true {
