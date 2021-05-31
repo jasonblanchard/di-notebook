@@ -110,7 +110,7 @@ LIMIT $3
 }
 
 // GetEntriesPaginationInfo get entries pagination
-func (r *Reader) GetEntriesPaginationInfo(i *store.GetPaginationInfoInput) (*store.GetEntriesPaginationInfoOutput, error) {
+func (r *Reader) GetEntriesPaginationInfo(i *store.GetEntriesPaginationInfoInput) (*store.GetEntriesPaginationInfoOutput, error) {
 	row := r.Db.QueryRow(`
 SELECT COUNT(*)
 FROM entries

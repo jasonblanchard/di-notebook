@@ -76,8 +76,8 @@ type ListEntriesOutput struct {
 // ListEntriesOutputCollection composit output
 type ListEntriesOutputCollection []ListEntriesOutput
 
-// GetPaginationInfoInput singular output for GetPaginationInfo
-type GetPaginationInfoInput struct {
+// GetEntriesPaginationInfoInput singular output for GetPaginationInfo
+type GetEntriesPaginationInfoInput struct {
 	CreatorID   string
 	First       int
 	StartCursor int
@@ -97,5 +97,5 @@ type Reader interface {
 	GetEntry(id int) (*GetEntryOutput, error)
 	GetDeletedEntry(id int) (*GetEntryOutput, error)
 	ListEntries(*ListEntriesInput) (*ListEntriesOutputCollection, error)
-	GetEntriesPaginationInfo(*GetPaginationInfoInput) (*GetEntriesPaginationInfoOutput, error)
+	GetEntriesPaginationInfo(*GetEntriesPaginationInfoInput) (*GetEntriesPaginationInfoOutput, error)
 }

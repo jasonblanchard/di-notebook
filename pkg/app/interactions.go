@@ -175,7 +175,7 @@ func (a *App) ListEntries(i *ListEntriesInput) (*ListEntriesOutput, error) {
 	entries := listEntryOutputToEntries(listEntriesOutput)
 	// TODO: Handle the zero entries case
 
-	pagination, err := a.StoreReader.GetEntriesPaginationInfo(&store.GetPaginationInfoInput{
+	pagination, err := a.StoreReader.GetEntriesPaginationInfo(&store.GetEntriesPaginationInfoInput{
 		CreatorID:   i.CreatorID,
 		First:       i.First,
 		StartCursor: entries[0].ID,
