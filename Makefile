@@ -1,3 +1,5 @@
+.PHONY: pulumi
+
 BUILDER=heroku/buildpacks:18
 IMAGE_NAME=di-notebook
 IMAGE_REPO=jasonblanchard/${IMAGE_NAME}
@@ -5,6 +7,7 @@ LOCAL_TAG=${IMAGE_REPO}
 LATEST_TAG=${IMAGE_REPO}:latest
 VERSION=$(shell git rev-parse HEAD)
 VERSION_TAG=${IMAGE_REPO}:${VERSION}
+GIT_SHA=$(shell git rev-parse HEAD)
 
 db:
 	docker rm postgres
@@ -48,3 +51,21 @@ push: build
 
 swap:
 	cd cmd/grpc && telepresence --swap-deployment notebook-grpc-production --namespace di-production --expose 8080 --run bash -c "go run . --config ./config/local.yaml"
+
+pulumi:
+	go build -o ./bin/pulumi ./pulumi
+
+provision: pulumi
+	pulumi up
+
+apilambda:
+	export GO111MODULE=on
+	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/apilambda cmd/lambda/*.go
+	zip -j ./bin/apilambda.zip ./bin/apilambda
+
+apipush: apilambda
+	aws s3 cp ./bin/apilambda.zip s3://$$(pulumi stack output lambdaSourceBucket)/${GIT_SHA}/apilambda.zip
+
+deployspec:
+	zip -j ./deployspec.zip ./deployspec.yaml
+	aws s3 cp ./deployspec.zip s3://$$(pulumi stack output deployspecbucket)	

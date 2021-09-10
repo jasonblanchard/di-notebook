@@ -1,0 +1,6 @@
+name: di-notebook
+runtime:
+  name: go
+  options:
+    binary: ./bin/pulumi
+description: .

@@ -1,0 +1,6 @@
+config:
+  di-notebook:apigwid: "lijpimk8ec"
+  di-notebook:sgid: "sg-0e1d7185c09def069"
+  di-notebook:snuseast1a: "subnet-09520cb51ce759869"
+  di-notebook:snuseast1b: "subnet-0e85b7e5bfb5fadc4"
+  aws:region: us-east-1
