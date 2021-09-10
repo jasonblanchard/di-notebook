@@ -35,6 +35,8 @@ func init() {
 	}
 
 	r.GET("/api/meta", srv.HandleMeta)
+	r.GET("/api/me", srv.HandleMe)
+	r.GET("/api/v2/entries", srv.HandleListEntries)
 }
 
 func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {

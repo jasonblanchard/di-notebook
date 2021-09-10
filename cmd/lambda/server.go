@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/lambdacontext"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/jasonblanchard/di-notebook/pkg/app"
 	"github.com/jasonblanchard/di-notebook/pkg/store/postgres"
@@ -110,4 +113,128 @@ func (s *Server) HandleMeta(c *gin.Context) {
 		"authorizationHeader": authorizationHeader,
 		"version":             version,
 	})
+}
+
+func (s *Server) HandleMe(c *gin.Context) {
+	authorizationHeader := c.Request.Header["Authorization"]
+	sub, err := bearerHeaderToSub(authorizationHeader[0])
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+	}
+	id := getUserIdBySub("https://accounts.google.com", sub)
+
+	c.JSON(200, gin.H{
+		"ID": id,
+	})
+}
+
+func (s *Server) HandleListEntries(c *gin.Context) {
+	authorizationHeader := c.Request.Header["Authorization"]
+	sub, err := bearerHeaderToSub(authorizationHeader[0])
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+	userId := getUserIdBySub("https://accounts.google.com", sub)
+
+	var after int
+	pageToken, ok := c.GetQuery("page_token")
+	if ok != true {
+		after = 0
+	} else {
+		after, err = strconv.Atoi(pageToken)
+	}
+
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+
+	var first int
+	pageSize, ok := c.GetQuery("page_size")
+	if ok != true {
+		first = 50
+	} else {
+		first, err = strconv.Atoi(pageSize)
+	}
+
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+
+	input := &app.ListEntriesInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   userId,
+		},
+		CreatorID: userId,
+		First:     first,
+		After:     after,
+	}
+
+	output, err := s.App.ListEntries(input)
+
+	entries := []map[string]interface{}{}
+
+	for _, entry := range output.Entries {
+		entry := map[string]interface{}{
+			"id":        entry.ID,
+			"text":      entry.Text,
+			"creatorId": entry.CreatorID,
+			"createdAt": entry.CreatedAt,
+		}
+		entries = append(entries, entry)
+	}
+
+	response := map[string]interface{}{
+		"NextPageToken": fmt.Sprintf("%d", output.Pagination.EndCursor),
+		"TotalSize":     int32(output.Pagination.TotalCount),
+		"HasNextPage":   output.Pagination.HasNextPage,
+		"entries":       entries,
+	}
+
+	c.JSON(200, gin.H(response))
+}
+
+func bearerHeaderToSub(header string) (string, error) {
+	tokenString := strings.Replace(header, "Bearer ", "", 1)
+
+	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return "", nil
+	})
+
+	if token == nil {
+		return "", errors.New("Invalid token")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+
+	if ok != true {
+		return "", errors.New("Token does not contain any claims")
+	}
+
+	return fmt.Sprintf("%s", claims["sub"]), nil
+}
+
+func getUserIdBySub(issuer, sub string) string {
+	googleSubs := map[string]string{
+		"103156652160725955399": "2b5545ef-3557-4f52-994d-daf89e04c390",
+	}
+
+	id, _ := googleSubs[sub]
+
+	return id
 }
