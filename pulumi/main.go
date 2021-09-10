@@ -162,7 +162,7 @@ func main() {
 
 		_, err = apigatewayv2.NewRoute(ctx, "routev2", &apigatewayv2.RouteArgs{
 			ApiId:             apigw.ID(),
-			RouteKey:          pulumi.String("GET /{proxy+}"),
+			RouteKey:          pulumi.String("GET /api/{proxy+}"),
 			Target:            target,
 			AuthorizerId:      pulumi.ID(authorizerid),
 			AuthorizationType: pulumi.String("JWT"),
