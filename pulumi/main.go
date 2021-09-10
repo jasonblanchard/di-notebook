@@ -15,6 +15,7 @@ import (
 
 func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
+		conf := config.New(ctx, "")
 		stack := ctx.Stack()
 		caller, err := aws.GetCallerIdentity(ctx, nil, nil)
 		if err != nil {
@@ -54,6 +55,22 @@ func main() {
 				}`),
 		})
 
+		eniPolicy, err := iam.NewRolePolicy(ctx, "di-apilambda-eni-policy", &iam.RolePolicyArgs{
+			Role: role.Name,
+			Policy: pulumi.String(`{
+					"Version": "2012-10-17",
+					"Statement": [{
+						"Effect": "Allow",
+						"Action": [
+							"ec2:CreateNetworkInterface",
+							"ec2:DescribeNetworkInterfaces",
+							"ec2:DeleteNetworkInterface"
+						],
+						"Resource": "*"
+					}]
+				}`),
+		})
+
 		lambdaSourceBucket, err := s3.NewBucket(ctx, fmt.Sprintf("di-notebook-%s", stack), &s3.BucketArgs{
 			Acl: pulumi.String("private"),
 		})
@@ -74,7 +91,6 @@ func main() {
 			return err
 		}
 
-		conf := config.New(ctx, "")
 		sgid := conf.Require("sgid")
 		snuseast1a := conf.Require("snuseast1a")
 		snuseast1b := conf.Require("snuseast1b")
@@ -92,7 +108,7 @@ func main() {
 				SubnetIds:        pulumi.ToStringArray([]string{snuseast1a, snuseast1b}),
 			},
 		},
-			pulumi.DependsOn([]pulumi.Resource{logPolicy}),
+			pulumi.DependsOn([]pulumi.Resource{logPolicy, eniPolicy}),
 		)
 		if err != nil {
 			return err
@@ -138,16 +154,18 @@ func main() {
 			return err
 		}
 
+		authorizerid := conf.Require("authorizerid")
+
 		target := apilambdaIntegration.ID().OutputState.ApplyT(func(id pulumi.ID) string {
 			return fmt.Sprintf("integrations/%s", id)
 		}).(pulumi.StringOutput)
 
 		_, err = apigatewayv2.NewRoute(ctx, "routev2", &apigatewayv2.RouteArgs{
-			ApiId:    apigw.ID(),
-			RouteKey: pulumi.String("GET /{proxy+}"),
-			Target:   target,
-			// AuthorizerId:      authorizer.ID(),
-			// AuthorizationType: pulumi.String("JWT"),
+			ApiId:             apigw.ID(),
+			RouteKey:          pulumi.String("GET /{proxy+}"),
+			Target:            target,
+			AuthorizerId:      pulumi.ID(authorizerid),
+			AuthorizationType: pulumi.String("JWT"),
 		})
 		if err != nil {
 			return err
