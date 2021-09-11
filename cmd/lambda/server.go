@@ -131,6 +131,55 @@ func (s *Server) HandleMe(c *gin.Context) {
 	})
 }
 
+func (s *Server) HandleGetEntry(c *gin.Context) {
+	authorizationHeader := c.Request.Header["Authorization"]
+	sub, err := bearerHeaderToSub(authorizationHeader[0])
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+	userId := getUserIdBySub("https://accounts.google.com", sub)
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+
+	getEntryInput := &app.GetEntryInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   userId,
+		},
+		ID: id,
+	}
+
+	entry, err := s.App.GetEntry(getEntryInput)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+
+	response := map[string]interface{}{
+		"id":         entry.ID,
+		"creator_id": entry.CreatorID,
+		"text":       entry.Text,
+		"created_at": entry.CreatedAt,
+		"updated_at": entry.UpdatedAt,
+	}
+
+	c.JSON(200, gin.H(response))
+}
+
 func (s *Server) HandleListEntries(c *gin.Context) {
 	authorizationHeader := c.Request.Header["Authorization"]
 	sub, err := bearerHeaderToSub(authorizationHeader[0])
@@ -191,19 +240,219 @@ func (s *Server) HandleListEntries(c *gin.Context) {
 
 	for _, entry := range output.Entries {
 		entry := map[string]interface{}{
-			"id":        entry.ID,
-			"text":      entry.Text,
-			"creatorId": entry.CreatorID,
-			"createdAt": entry.CreatedAt,
+			"id":         entry.ID,
+			"text":       entry.Text,
+			"creator_id": entry.CreatorID,
+			"created_at": entry.CreatedAt,
 		}
 		entries = append(entries, entry)
 	}
 
 	response := map[string]interface{}{
-		"NextPageToken": fmt.Sprintf("%d", output.Pagination.EndCursor),
-		"TotalSize":     int32(output.Pagination.TotalCount),
-		"HasNextPage":   output.Pagination.HasNextPage,
-		"entries":       entries,
+		"next_page_token": fmt.Sprintf("%d", output.Pagination.EndCursor),
+		"total_size":      int32(output.Pagination.TotalCount),
+		"has_next_page":   output.Pagination.HasNextPage,
+		"entries":         entries,
+	}
+
+	c.JSON(200, gin.H(response))
+}
+
+func (s *Server) HandleCreateEntry(c *gin.Context) {
+	authorizationHeader := c.Request.Header["Authorization"]
+	sub, err := bearerHeaderToSub(authorizationHeader[0])
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+	userId := getUserIdBySub("https://accounts.google.com", sub)
+
+	type Body struct {
+		Text string `json:"text"`
+	}
+
+	body := &Body{}
+
+	c.BindJSON(body)
+
+	input := &app.CreateEntryInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   userId,
+		},
+		CreatorID: userId,
+		Text:      body.Text,
+	}
+
+	id, err := s.App.CreateEntry(input)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+
+	response := map[string]interface{}{
+		"id":   id,
+		"text": body.Text,
+	}
+
+	c.JSON(200, gin.H(response))
+}
+
+func (s *Server) HandleUpdateEntry(c *gin.Context) {
+	authorizationHeader := c.Request.Header["Authorization"]
+	sub, err := bearerHeaderToSub(authorizationHeader[0])
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+	userId := getUserIdBySub("https://accounts.google.com", sub)
+	type Body struct {
+		Text string `json:"text"`
+	}
+
+	body := &Body{}
+	c.BindJSON(body)
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+
+	input := &app.UpdateEntryInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   userId,
+		},
+		ID:   id,
+		Text: body.Text,
+	}
+
+	entry, err := s.App.UpdateEntry(input)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+
+	response := map[string]interface{}{
+		"id":         entry.ID,
+		"creator_id": entry.CreatorID,
+		"text":       entry.Text,
+		"created_at": entry.CreatedAt,
+		"updated_at": entry.UpdatedAt,
+	}
+
+	c.JSON(200, gin.H(response))
+}
+
+func (s *Server) HandleDeleteEntry(c *gin.Context) {
+	authorizationHeader := c.Request.Header["Authorization"]
+	sub, err := bearerHeaderToSub(authorizationHeader[0])
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+	userId := getUserIdBySub("https://accounts.google.com", sub)
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+
+	input := &app.DeleteEntryInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   userId,
+		},
+		ID: id,
+	}
+
+	entry, err := s.App.DeleteEntry(input)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+
+	response := map[string]interface{}{
+		"id":         entry.ID,
+		"creator_id": entry.CreatorID,
+		"text":       entry.Text,
+		"created_at": entry.CreatedAt,
+		"updated_at": entry.UpdatedAt,
+		"date_time":  entry.DeleteTime,
+	}
+
+	c.JSON(200, gin.H(response))
+}
+
+func (s *Server) HandleUndeleteEntry(c *gin.Context) {
+	authorizationHeader := c.Request.Header["Authorization"]
+	sub, err := bearerHeaderToSub(authorizationHeader[0])
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+	userId := getUserIdBySub("https://accounts.google.com", sub)
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+
+	input := &app.UndeleteEntryInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   userId,
+		},
+		ID: id,
+	}
+
+	entry, err := s.App.UndeleteEntry(input)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		c.JSON(500, gin.H{
+			"error": "Something went wrong",
+		})
+		return
+	}
+
+	response := map[string]interface{}{
+		"id":         entry.ID,
+		"creator_id": entry.CreatorID,
+		"text":       entry.Text,
+		"created_at": entry.CreatedAt,
+		"updated_at": entry.UpdatedAt,
+		"date_time":  entry.DeleteTime,
 	}
 
 	c.JSON(200, gin.H(response))

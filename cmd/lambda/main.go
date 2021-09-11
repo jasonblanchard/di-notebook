@@ -37,6 +37,11 @@ func init() {
 	r.GET("/api/meta", srv.HandleMeta)
 	r.GET("/api/me", srv.HandleMe)
 	r.GET("/api/v2/entries", srv.HandleListEntries)
+	r.GET("/api/v2/entries/:id", srv.HandleGetEntry)
+	r.POST("/api/v2/entries", srv.HandleCreateEntry)
+	r.PATCH("/api/v2/entries/:id", srv.HandleUpdateEntry)
+	r.DELETE("/api/v2/entries/:id", srv.HandleDeleteEntry)
+	r.POST("/api/v2/entries/:id/undelete", srv.HandleUndeleteEntry)
 }
 
 func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {

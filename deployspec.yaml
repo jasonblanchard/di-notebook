@@ -3,7 +3,7 @@ Resources:
   - apiLambdaFn:
       FunctionCode:
         S3Bucket: di-notebook-prod-b287d59
-        S3Key: 3de8ee497459ff8e76809b6dfea5212a7a9eab24/apilambda.zip
+        S3Key: 151b34707d49e2b2745286e331b2d11da8d3b2f7/apilambda.zip
 AppSpec:
   version: 0.0
   Resources:
