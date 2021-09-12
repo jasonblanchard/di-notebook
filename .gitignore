@@ -84,3 +84,5 @@ override.tf.json
 # End of https://www.toptal.com/developers/gitignore/api/osx,go,terraform
 
 bin
+deployspec.yaml
+deployspec.zip
