@@ -1,0 +1,14 @@
+version: 0.0
+Resources:
+  - apiLambdaFn:
+      FunctionCode:
+        S3Bucket: di-notebook-prod-b287d59
+        S3Key: %SHA%/apilambda.zip
+AppSpec:
+  version: 0.0
+  Resources:
+    - apiLambdaFn:
+        Type: AWS::Lambda::Function
+        Properties:
+          Name: "di-notebook-prod"
+          Alias: "release"

@@ -64,8 +64,8 @@ apilambda:
 	zip -j ./bin/apilambda.zip ./bin/apilambda
 
 apipush: apilambda
-	aws s3 cp ./bin/apilambda.zip s3://$$(pulumi stack output lambdaSourceBucket)/${GIT_SHA}/apilambda.zip
+	aws s3 cp ./bin/apilambda.zip s3://di-notebook-prod-b287d59/${GIT_SHA}/apilambda.zip
 
 deployspec:
 	zip -j ./deployspec.zip ./deployspec.yaml
-	aws s3 cp ./deployspec.zip s3://$$(pulumi stack output deployspecbucket)	
+	aws s3 cp ./deployspec.zip s3://di-notebook-codedeploy-deployspec-prod-e2f156a	
