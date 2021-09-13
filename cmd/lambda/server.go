@@ -169,8 +169,7 @@ func (s *Server) HandleGetEntry(c echo.Context) error {
 }
 
 func (s *Server) ListEntries(ctx echo.Context, params openapi.ListEntriesParams) error {
-	authorizationHeaderInterface := ctx.Get(openapi.BearerAuthScopes)
-	authorizationHeader := authorizationHeaderInterface.([]string)
+	authorizationHeader := ctx.Request().Header["Authorization"]
 	sub, err := bearerHeaderToSub(authorizationHeader[0])
 	if err != nil {
 		s.Logger.Error(err.Error())
