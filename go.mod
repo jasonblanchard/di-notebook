@@ -26,6 +26,7 @@ require (
 	github.com/jasonblanchard/di-apis v0.0.0-20210528205605-3495977a8620
 	github.com/jasonblanchard/di-messages/packages/go v0.0.0-20210109181449-b8ce80767bbc
 	github.com/jasonblanchard/natsby v0.0.1
+	github.com/labstack/echo/v4 v4.1.17
 	github.com/lib/pq v1.10.3
 	github.com/magiconair/properties v1.8.5
 	github.com/mitchellh/go-homedir v1.1.0

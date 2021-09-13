@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jasonblanchard/di-notebook/pkg/app"
 	"github.com/jasonblanchard/di-notebook/pkg/store/postgres"
+	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -87,8 +88,8 @@ func NewServer() (*Server, error) {
 	return s, nil
 }
 
-func (s *Server) HandleMeta(c *gin.Context) {
-	apiGwContext, err := ginLambda.GetAPIGatewayContext(c.Request)
+func (s *Server) HandleMeta(c echo.Context) error {
+	apiGwContext, err := echoLambda.GetAPIGatewayContext(c.Request())
 	context := fmt.Sprintf("%+v", apiGwContext)
 
 	requestId := apiGwContext.RequestID
@@ -98,11 +99,11 @@ func (s *Server) HandleMeta(c *gin.Context) {
 
 	version := lambdacontext.FunctionVersion
 
-	authorizationHeader := c.Request.Header["Authorization"]
+	authorizationHeader := c.Request().Header["Authorization"]
 
 	if err != nil {
 		c.JSON(500, err)
-		return
+		return nil
 	}
 
 	c.JSON(200, gin.H{
@@ -113,6 +114,8 @@ func (s *Server) HandleMeta(c *gin.Context) {
 		"authorizationHeader": authorizationHeader,
 		"version":             version,
 	})
+
+	return nil
 }
 
 func (s *Server) HandleMe(c *gin.Context) {
