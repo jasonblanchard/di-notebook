@@ -1,4 +1,4 @@
-.PHONY: pulumi
+.PHONY: pulumi openapi
 
 BUILDER=heroku/buildpacks:18
 IMAGE_NAME=di-notebook
@@ -69,3 +69,6 @@ apipush: apilambda
 deployspec:
 	zip -j ./deployspec.zip ./deployspec.yaml
 	aws s3 cp ./deployspec.zip s3://di-notebook-codedeploy-deployspec-prod-e2f156a	
+
+openapi:
+	oapi-codegen --package openapi notebook.swagger.yaml > pkg/openapi/notebook.gen.go

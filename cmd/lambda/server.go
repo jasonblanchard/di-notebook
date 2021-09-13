@@ -9,6 +9,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/jasonblanchard/di-notebook/pkg/app"
+	"github.com/jasonblanchard/di-notebook/pkg/openapi"
 	"github.com/jasonblanchard/di-notebook/pkg/store/postgres"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
@@ -181,6 +182,67 @@ func (s *Server) HandleGetEntry(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H(response))
+}
+
+func (s *Server) ListEntries(ctx echo.Context, params openapi.ListEntriesParams) error {
+	authorizationHeaderInterface := ctx.Get(openapi.BearerAuthScopes)
+	authorizationHeader := authorizationHeaderInterface.(string)
+	sub, err := bearerHeaderToSub(authorizationHeader)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		ctx.JSON(500, map[string]interface{}{
+			"error": "Something went wrong",
+		})
+		return err
+	}
+	userId := getUserIdBySub("https://accounts.google.com", sub)
+
+	var after int
+	pageToken := params.PageToken
+	after, err = strconv.Atoi(*pageToken)
+	if err != nil {
+		s.Logger.Error(err.Error())
+		ctx.JSON(500, map[string]interface{}{
+			"error": "Something went wrong",
+		})
+		return err
+	}
+
+	input := &app.ListEntriesInput{
+		Principal: &app.Principal{
+			Type: app.PrincipalUSER,
+			ID:   userId,
+		},
+		CreatorID: userId,
+		First:     int(params.PageSize),
+		After:     after,
+	}
+
+	output, err := s.App.ListEntries(input)
+
+	entries := []openapi.Entry{}
+
+	for _, entry := range output.Entries {
+		id := fmt.Sprintf("%v", entry.ID)
+		entry := openapi.Entry{
+			Id:        &id,
+			CreatorId: &entry.CreatorID,
+			CreatedAt: &entry.CreatedAt,
+			UpdatedAt: &entry.UpdatedAt,
+		}
+		entries = append(entries, entry)
+	}
+
+	response := map[string]interface{}{
+		"next_page_token": fmt.Sprintf("%d", output.Pagination.EndCursor),
+		"total_size":      int32(output.Pagination.TotalCount),
+		"has_next_page":   output.Pagination.HasNextPage,
+		"entries":         entries,
+	}
+
+	ctx.JSON(200, response)
+
+	return nil
 }
 
 func (s *Server) HandleListEntries(c *gin.Context) {
