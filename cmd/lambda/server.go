@@ -7,7 +7,6 @@ import (
 
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
 	"github.com/jasonblanchard/di-notebook/pkg/app"
 	"github.com/jasonblanchard/di-notebook/pkg/openapi"
 	"github.com/jasonblanchard/di-notebook/pkg/store/postgres"
@@ -107,7 +106,7 @@ func (s *Server) HandleMeta(c echo.Context) error {
 		return nil
 	}
 
-	c.JSON(200, gin.H{
+	c.JSON(200, map[string]interface{}{
 		"context":             context,
 		"requestId":           requestId,
 		"stage":               stage,
@@ -119,28 +118,12 @@ func (s *Server) HandleMeta(c echo.Context) error {
 	return nil
 }
 
-func (s *Server) HandleMe(c *gin.Context) {
-	authorizationHeader := c.Request.Header["Authorization"]
-	sub, err := bearerHeaderToSub(authorizationHeader[0])
-	if err != nil {
-		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
-			"error": "Something went wrong",
-		})
-	}
-	id := getUserIdBySub("https://accounts.google.com", sub)
-
-	c.JSON(200, gin.H{
-		"ID": id,
-	})
-}
-
 func (s *Server) HandleGetEntry(c echo.Context) error {
 	authorizationHeader := c.Request().Header["Authorization"]
 	sub, err := bearerHeaderToSub(authorizationHeader[0])
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		c.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return err
@@ -150,7 +133,7 @@ func (s *Server) HandleGetEntry(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		c.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return err
@@ -167,7 +150,7 @@ func (s *Server) HandleGetEntry(c echo.Context) error {
 	entry, err := s.App.GetEntry(getEntryInput)
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		c.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return nil
@@ -181,7 +164,7 @@ func (s *Server) HandleGetEntry(c echo.Context) error {
 		"updated_at": entry.UpdatedAt,
 	}
 
-	c.JSON(200, gin.H(response))
+	c.JSON(200, map[string]interface{}(response))
 	return nil
 }
 
@@ -251,7 +234,7 @@ func (s *Server) HandleListEntries(ctx echo.Context) error {
 	sub, err := bearerHeaderToSub(authorizationHeader[0])
 	if err != nil {
 		s.Logger.Error(err.Error())
-		ctx.JSON(500, gin.H{
+		ctx.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return nil
@@ -268,7 +251,7 @@ func (s *Server) HandleListEntries(ctx echo.Context) error {
 
 	if err != nil {
 		s.Logger.Error(err.Error())
-		ctx.JSON(500, gin.H{
+		ctx.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return nil
@@ -284,7 +267,7 @@ func (s *Server) HandleListEntries(ctx echo.Context) error {
 
 	if err != nil {
 		s.Logger.Error(err.Error())
-		ctx.JSON(500, gin.H{
+		ctx.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return nil
@@ -321,7 +304,7 @@ func (s *Server) HandleListEntries(ctx echo.Context) error {
 		"entries":         entries,
 	}
 
-	ctx.JSON(200, gin.H(response))
+	ctx.JSON(200, map[string]interface{}(response))
 	return nil
 }
 
@@ -330,7 +313,7 @@ func (s *Server) HandleCreateEntry(ctx echo.Context) error {
 	sub, err := bearerHeaderToSub(authorizationHeader[0])
 	if err != nil {
 		s.Logger.Error(err.Error())
-		ctx.JSON(500, gin.H{
+		ctx.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return err
@@ -357,7 +340,7 @@ func (s *Server) HandleCreateEntry(ctx echo.Context) error {
 	id, err := s.App.CreateEntry(input)
 	if err != nil {
 		s.Logger.Error(err.Error())
-		ctx.JSON(500, gin.H{
+		ctx.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return err
@@ -368,7 +351,7 @@ func (s *Server) HandleCreateEntry(ctx echo.Context) error {
 		"text": body.Text,
 	}
 
-	ctx.JSON(200, gin.H(response))
+	ctx.JSON(200, map[string]interface{}(response))
 	return nil
 }
 
@@ -377,7 +360,7 @@ func (s *Server) HandleUpdateEntry(ctx echo.Context) error {
 	sub, err := bearerHeaderToSub(authorizationHeader[0])
 	if err != nil {
 		s.Logger.Error(err.Error())
-		ctx.JSON(500, gin.H{
+		ctx.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return nil
@@ -393,7 +376,7 @@ func (s *Server) HandleUpdateEntry(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		s.Logger.Error(err.Error())
-		ctx.JSON(500, gin.H{
+		ctx.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return nil
@@ -411,7 +394,7 @@ func (s *Server) HandleUpdateEntry(ctx echo.Context) error {
 	entry, err := s.App.UpdateEntry(input)
 	if err != nil {
 		s.Logger.Error(err.Error())
-		ctx.JSON(500, gin.H{
+		ctx.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return nil
@@ -425,7 +408,7 @@ func (s *Server) HandleUpdateEntry(ctx echo.Context) error {
 		"updated_at": entry.UpdatedAt,
 	}
 
-	ctx.JSON(200, gin.H(response))
+	ctx.JSON(200, map[string]interface{}(response))
 	return nil
 }
 
@@ -434,7 +417,7 @@ func (s *Server) HandleDeleteEntry(ctx echo.Context) error {
 	sub, err := bearerHeaderToSub(authorizationHeader[0])
 	if err != nil {
 		s.Logger.Error(err.Error())
-		ctx.JSON(500, gin.H{
+		ctx.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return nil
@@ -443,7 +426,7 @@ func (s *Server) HandleDeleteEntry(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		s.Logger.Error(err.Error())
-		ctx.JSON(500, gin.H{
+		ctx.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return nil
@@ -460,7 +443,7 @@ func (s *Server) HandleDeleteEntry(ctx echo.Context) error {
 	entry, err := s.App.DeleteEntry(input)
 	if err != nil {
 		s.Logger.Error(err.Error())
-		ctx.JSON(500, gin.H{
+		ctx.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return nil
@@ -475,7 +458,7 @@ func (s *Server) HandleDeleteEntry(ctx echo.Context) error {
 		"date_time":  entry.DeleteTime,
 	}
 
-	ctx.JSON(200, gin.H(response))
+	ctx.JSON(200, map[string]interface{}(response))
 	return nil
 }
 
@@ -484,7 +467,7 @@ func (s *Server) HandleUndeleteEntry(ctx echo.Context) error {
 	sub, err := bearerHeaderToSub(authorizationHeader[0])
 	if err != nil {
 		s.Logger.Error(err.Error())
-		ctx.JSON(500, gin.H{
+		ctx.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return nil
@@ -493,7 +476,7 @@ func (s *Server) HandleUndeleteEntry(ctx echo.Context) error {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		s.Logger.Error(err.Error())
-		ctx.JSON(500, gin.H{
+		ctx.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return nil
@@ -510,7 +493,7 @@ func (s *Server) HandleUndeleteEntry(ctx echo.Context) error {
 	entry, err := s.App.UndeleteEntry(input)
 	if err != nil {
 		s.Logger.Error(err.Error())
-		ctx.JSON(500, gin.H{
+		ctx.JSON(500, map[string]interface{}{
 			"error": "Something went wrong",
 		})
 		return nil
@@ -525,7 +508,7 @@ func (s *Server) HandleUndeleteEntry(ctx echo.Context) error {
 		"date_time":  entry.DeleteTime,
 	}
 
-	ctx.JSON(200, gin.H(response))
+	ctx.JSON(200, map[string]interface{}(response))
 	return nil
 }
 
