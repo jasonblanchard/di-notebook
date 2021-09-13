@@ -3,11 +3,11 @@ info:
   version: 1.0.0
   title: Notebook API
 servers:
-  - url: /api
+  - url: https://di8.blanktech.net
 security:
   - bearerAuth: []
 paths:
-  /entries:
+  /api/v2/entries:
     get:
       description: |
         Returns all pets from the system that the user has access to
