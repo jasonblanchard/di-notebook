@@ -135,15 +135,15 @@ func (s *Server) HandleMe(c *gin.Context) {
 	})
 }
 
-func (s *Server) HandleGetEntry(c *gin.Context) {
-	authorizationHeader := c.Request.Header["Authorization"]
+func (s *Server) HandleGetEntry(c echo.Context) error {
+	authorizationHeader := c.Request().Header["Authorization"]
 	sub, err := bearerHeaderToSub(authorizationHeader[0])
 	if err != nil {
 		s.Logger.Error(err.Error())
 		c.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return err
 	}
 	userId := getUserIdBySub("https://accounts.google.com", sub)
 
@@ -153,7 +153,7 @@ func (s *Server) HandleGetEntry(c *gin.Context) {
 		c.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return err
 	}
 
 	getEntryInput := &app.GetEntryInput{
@@ -170,7 +170,7 @@ func (s *Server) HandleGetEntry(c *gin.Context) {
 		c.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return nil
 	}
 
 	response := map[string]interface{}{
@@ -182,6 +182,7 @@ func (s *Server) HandleGetEntry(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H(response))
+	return nil
 }
 
 func (s *Server) ListEntries(ctx echo.Context, params openapi.ListEntriesParams) error {
@@ -245,21 +246,21 @@ func (s *Server) ListEntries(ctx echo.Context, params openapi.ListEntriesParams)
 	return nil
 }
 
-func (s *Server) HandleListEntries(c *gin.Context) {
-	authorizationHeader := c.Request.Header["Authorization"]
+func (s *Server) HandleListEntries(ctx echo.Context) error {
+	authorizationHeader := ctx.Request().Header["Authorization"]
 	sub, err := bearerHeaderToSub(authorizationHeader[0])
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		ctx.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return nil
 	}
 	userId := getUserIdBySub("https://accounts.google.com", sub)
 
 	var after int
-	pageToken, ok := c.GetQuery("page_token")
-	if ok != true {
+	pageToken := ctx.QueryParam("page_token")
+	if pageToken == "" {
 		after = 0
 	} else {
 		after, err = strconv.Atoi(pageToken)
@@ -267,15 +268,15 @@ func (s *Server) HandleListEntries(c *gin.Context) {
 
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		ctx.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return nil
 	}
 
 	var first int
-	pageSize, ok := c.GetQuery("page_size")
-	if ok != true {
+	pageSize := ctx.QueryParam("page_size")
+	if pageSize == "" {
 		first = 50
 	} else {
 		first, err = strconv.Atoi(pageSize)
@@ -283,10 +284,10 @@ func (s *Server) HandleListEntries(c *gin.Context) {
 
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		ctx.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return nil
 	}
 
 	input := &app.ListEntriesInput{
@@ -320,18 +321,19 @@ func (s *Server) HandleListEntries(c *gin.Context) {
 		"entries":         entries,
 	}
 
-	c.JSON(200, gin.H(response))
+	ctx.JSON(200, gin.H(response))
+	return nil
 }
 
-func (s *Server) HandleCreateEntry(c *gin.Context) {
-	authorizationHeader := c.Request.Header["Authorization"]
+func (s *Server) HandleCreateEntry(ctx echo.Context) error {
+	authorizationHeader := ctx.Request().Header["Authorization"]
 	sub, err := bearerHeaderToSub(authorizationHeader[0])
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		ctx.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return err
 	}
 	userId := getUserIdBySub("https://accounts.google.com", sub)
 
@@ -341,7 +343,7 @@ func (s *Server) HandleCreateEntry(c *gin.Context) {
 
 	body := &Body{}
 
-	c.BindJSON(body)
+	ctx.Bind(body)
 
 	input := &app.CreateEntryInput{
 		Principal: &app.Principal{
@@ -355,10 +357,10 @@ func (s *Server) HandleCreateEntry(c *gin.Context) {
 	id, err := s.App.CreateEntry(input)
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		ctx.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return err
 	}
 
 	response := map[string]interface{}{
@@ -366,18 +368,19 @@ func (s *Server) HandleCreateEntry(c *gin.Context) {
 		"text": body.Text,
 	}
 
-	c.JSON(200, gin.H(response))
+	ctx.JSON(200, gin.H(response))
+	return nil
 }
 
-func (s *Server) HandleUpdateEntry(c *gin.Context) {
-	authorizationHeader := c.Request.Header["Authorization"]
+func (s *Server) HandleUpdateEntry(ctx echo.Context) error {
+	authorizationHeader := ctx.Request().Header["Authorization"]
 	sub, err := bearerHeaderToSub(authorizationHeader[0])
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		ctx.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return nil
 	}
 	userId := getUserIdBySub("https://accounts.google.com", sub)
 	type Body struct {
@@ -385,15 +388,15 @@ func (s *Server) HandleUpdateEntry(c *gin.Context) {
 	}
 
 	body := &Body{}
-	c.BindJSON(body)
+	ctx.Bind(body)
 
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		ctx.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return nil
 	}
 
 	input := &app.UpdateEntryInput{
@@ -408,10 +411,10 @@ func (s *Server) HandleUpdateEntry(c *gin.Context) {
 	entry, err := s.App.UpdateEntry(input)
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		ctx.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return nil
 	}
 
 	response := map[string]interface{}{
@@ -422,27 +425,28 @@ func (s *Server) HandleUpdateEntry(c *gin.Context) {
 		"updated_at": entry.UpdatedAt,
 	}
 
-	c.JSON(200, gin.H(response))
+	ctx.JSON(200, gin.H(response))
+	return nil
 }
 
-func (s *Server) HandleDeleteEntry(c *gin.Context) {
-	authorizationHeader := c.Request.Header["Authorization"]
+func (s *Server) HandleDeleteEntry(ctx echo.Context) error {
+	authorizationHeader := ctx.Request().Header["Authorization"]
 	sub, err := bearerHeaderToSub(authorizationHeader[0])
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		ctx.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return nil
 	}
 	userId := getUserIdBySub("https://accounts.google.com", sub)
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		ctx.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return nil
 	}
 
 	input := &app.DeleteEntryInput{
@@ -456,10 +460,10 @@ func (s *Server) HandleDeleteEntry(c *gin.Context) {
 	entry, err := s.App.DeleteEntry(input)
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		ctx.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return nil
 	}
 
 	response := map[string]interface{}{
@@ -471,27 +475,28 @@ func (s *Server) HandleDeleteEntry(c *gin.Context) {
 		"date_time":  entry.DeleteTime,
 	}
 
-	c.JSON(200, gin.H(response))
+	ctx.JSON(200, gin.H(response))
+	return nil
 }
 
-func (s *Server) HandleUndeleteEntry(c *gin.Context) {
-	authorizationHeader := c.Request.Header["Authorization"]
+func (s *Server) HandleUndeleteEntry(ctx echo.Context) error {
+	authorizationHeader := ctx.Request().Header["Authorization"]
 	sub, err := bearerHeaderToSub(authorizationHeader[0])
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		ctx.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return nil
 	}
 	userId := getUserIdBySub("https://accounts.google.com", sub)
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		ctx.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return nil
 	}
 
 	input := &app.UndeleteEntryInput{
@@ -505,10 +510,10 @@ func (s *Server) HandleUndeleteEntry(c *gin.Context) {
 	entry, err := s.App.UndeleteEntry(input)
 	if err != nil {
 		s.Logger.Error(err.Error())
-		c.JSON(500, gin.H{
+		ctx.JSON(500, gin.H{
 			"error": "Something went wrong",
 		})
-		return
+		return nil
 	}
 
 	response := map[string]interface{}{
@@ -520,7 +525,8 @@ func (s *Server) HandleUndeleteEntry(c *gin.Context) {
 		"date_time":  entry.DeleteTime,
 	}
 
-	c.JSON(200, gin.H(response))
+	ctx.JSON(200, gin.H(response))
+	return nil
 }
 
 func bearerHeaderToSub(header string) (string, error) {
