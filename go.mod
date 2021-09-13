@@ -13,7 +13,6 @@ require (
 	github.com/docker/docker v20.10.6+incompatible // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/getkin/kin-openapi v0.61.0
-	github.com/gin-gonic/gin v1.7.4
 	github.com/gofrs/flock v0.8.0 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
 	github.com/golang-migrate/migrate/v4 v4.14.1
