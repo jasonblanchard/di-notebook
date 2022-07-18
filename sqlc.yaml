@@ -1,0 +1,7 @@
+version: 1
+packages:
+  - path: "pkg/store2"
+    name: "dinotebook"
+    engine: "postgresql"
+    schema: "migrations"
+    queries: "pkg/store2/query.sql"
