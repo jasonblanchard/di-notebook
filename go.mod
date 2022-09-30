@@ -26,7 +26,7 @@ require (
 	github.com/jasonblanchard/di-apis v0.0.0-20210528205605-3495977a8620
 	github.com/jasonblanchard/di-messages/packages/go v0.0.0-20210109181449-b8ce80767bbc
 	github.com/jasonblanchard/natsby v0.0.1
-	github.com/labstack/echo/v4 v4.2.1
+	github.com/labstack/echo/v4 v4.9.0
 	github.com/lib/pq v1.10.3
 	github.com/magiconair/properties v1.8.5
 	github.com/mitchellh/go-homedir v1.1.0
@@ -52,8 +52,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.19.1
-	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a // indirect
-	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
+	golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f
 	google.golang.org/genproto v0.0.0-20210903162649-d08c68adba83
 	google.golang.org/grpc v1.40.0
 	google.golang.org/protobuf v1.27.1
