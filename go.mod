@@ -36,8 +36,7 @@ require (
 	github.com/nats-io/nats.go v1.12.1
 	github.com/pelletier/go-toml v1.9.1 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.10.0 // indirect
-	github.com/prometheus/common v0.25.0 // indirect
+	github.com/prometheus/client_golang v1.11.1 // indirect
 	github.com/pulumi/pulumi-aws/sdk/v4 v4.18.0
 	github.com/pulumi/pulumi/sdk/v3 v3.11.0
 	github.com/rs/zerolog v1.24.0
